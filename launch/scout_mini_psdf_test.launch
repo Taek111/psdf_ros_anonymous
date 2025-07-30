@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Scout Mini PSDF-MPC Integration Test Launch File -->
+    <!-- This launch file combines Scout Mini Gazebo simulation with PSDF-MPC local planner -->
+    
+    <!-- Arguments -->
+    <arg name="robot_namespace" default="/"/>
+    <arg name="world_name" default="$(find psdf_ros)/worlds/2d_maze_scaled.world"/>
+    <arg name="config_dir" default="$(find psdf_ros)/config" />
+    <arg name="use_rviz" default="true" />
+    <arg name="use_move_base" default="true" />
+    <arg name="x" default="-6.0"/>
+    <arg name="y" default="3.0"/>
+    <arg name="z" default="0.0"/>
+    <arg name="yaw" default="0.0"/>
+    
+    <!-- 1. Create the map and spawn the robot -->
+    <include file="$(find psdf_ros)/launch/scout_mini_gazebo.launch"></include>
+    
+    <!-- 2. Simple obstacle detector for PSDF -->
+    <!-- Convert laser scan to edge segments for PSDF-MPC -->
+    <!-- <node name="laser_to_edges" pkg="psdf_ros" type="laser_to_edges.py" output="screen">
+        <remap from="scan" to="scan"/>
+        <remap from="detected_edges" to="detected_edges"/>
+        <param name="frame_id" value="odom"/>
+        <param name="max_range" value="8.0"/>
+        <param name="min_range" value="0.1"/>
+        <param name="cluster_tolerance" value="0.3"/>
+        <param name="min_cluster_size" value="3"/>
+    </node> -->
+    
+    <!-- 3. Load PSDF-MPC parameters -->
+    <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
+    <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
+    
+    <!-- 4. PSDF-ROS Service Node -->
+    <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
+        <!-- Robot footprint configuration -->
+        <param name="robot_footprint_file" value="$(arg config_dir)/robot_footprint.yaml" />
+        
+        <!-- MPC Parameters -->
+        <param name="horizon" value="15" />
+        <param name="dt" value="0.1" />
+        <param name="d_safe" value="0.2" />
+        
+        <!-- Control limits (adjusted for Scout Mini) -->
+        <param name="vmin" value="-1.0" />
+        <param name="vmax" value="1.0" />
+        <param name="omegamin" value="-1.5" />
+        <param name="omegamax" value="1.5" />
+        
+        <!-- Cost weights -->
+        <rosparam param="Q">[50.0, 50.0, 1.0]</rosparam>
+        <rosparam param="R">[0.2, 0.05]</rosparam>
+        <param name="terminal_weight" value="1.0" />
+        
+        <!-- Safety parameters -->
+        <param name="max_clusters" value="20" />
+        <param name="max_edges_per_cluster" value="64" />
+        <param name="emergency_stop_on_fail" value="true" />
+        <param name="service_timeout" value="0.2" />
+        
+        <!-- Topics and frames -->
+        <param name="obstacle_topic" value="/detected_edges" />
+        <param name="frame_id/local_frame" value="odom" />
+        <param name="frame_id/robot_frame" value="base_link" />
+    </node>
+    
+    <!-- 5. Navigation stack with PSDF local planner -->
+    <group if="$(arg use_move_base)">
+        <!-- Map server (if using a static map) -->
+        <node name="map_server" pkg="map_server" type="map_server" 
+              args="$(find psdf_ros)/maps/2d_maze.yaml" output="screen" />
+        
+        <!-- AMCL for localization -->
+        <node pkg="amcl" type="amcl" name="amcl" output="screen">
+            <!-- Initial pose estimate -->
+            <param name="initial_pose_x" value="$(arg x)"/>
+            <param name="initial_pose_y" value="$(arg y)"/>
+            <param name="initial_pose_a" value="$(arg yaw)"/>
+            
+            <!-- AMCL parameters -->
+            <param name="min_particles" value="100"/>
+            <param name="max_particles" value="500"/>
+            <param name="update_min_d" value="0.2"/>
+            <param name="update_min_a" value="0.2"/>
+            <param name="resample_interval" value="1"/>
+            <param name="transform_tolerance" value="0.1"/>
+            <param name="recovery_alpha_slow" value="0.0"/>
+            <param name="recovery_alpha_fast" value="0.0"/>
+        </node>
+        
+        <!-- Move base with PSDF local planner -->
+        <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+            <!-- Use PSDF local planner -->
+            <param name="base_local_planner" value="psdf_local_planner/PSDFLocalPlanner" />
+            
+            <!-- Global planner -->
+            <param name="base_global_planner" value="navfn/NavfnROS" />
+            
+            <!-- Basic move_base parameters -->
+            <param name="controller_frequency" value="10.0" />
+            <param name="planner_frequency" value="1.0" />
+            <param name="planner_patience" value="5.0" />
+            <param name="controller_patience" value="15.0" />
+            <param name="conservative_reset_dist" value="3.0" />
+            <param name="recovery_behavior_enabled" value="false" />
+            
+            <!-- Costmap parameters -->
+            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find psdf_ros)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find psdf_ros)/config/global_costmap_params.yaml" command="load" />
+            
+            <!-- Robot footprint for costmaps -->
+            <param name="footprint" value="[[-0.3, -0.25], [0.3, -0.25], [0.3, 0.25], [-0.3, 0.25]]"/>
+        </node>
+    </group>
+    
+    <!-- 6. Visualization -->
+    <group if="$(arg use_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find psdf_ros)/rviz/psdf_navigation.rviz" 
+              output="screen" />
+    </group>
+    
+    <!-- 7. Optional: Goal publisher for testing -->
+    <node name="goal_publisher" pkg="psdf_ros" type="goal_publisher.py" output="screen">
+        <param name="goal_x" value="5.0"/>
+        <param name="goal_y" value="-2.0"/>
+        <param name="goal_yaw" value="0.0"/>
+        <param name="frame_id" value="map"/>
+        <param name="delay" value="10.0"/>  <!-- Wait 10 seconds before publishing goal -->
+    </node>
+    
+    <!-- Debug and monitoring -->
+    <node name="psdf_monitor" pkg="psdf_ros" type="psdf_monitor.py" output="screen">
+        <param name="monitor_frequency" value="1.0"/>
+        <param name="log_performance" value="true"/>
+    </node>
+
+</launch>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!-- Pluginlib export for PSDF local planner -->
+<library path="lib/libpsdf_local_planner">
+  <class name="psdf_local_planner/PSDFLocalPlanner"
+         type="psdf_ros::PSDFLocalPlanner"
+         base_class_type="nav_core::BaseLocalPlanner">
+    <description>
+      PSDF-MPC based local planner (stub).
+    </description>
+  </class>
+</library>

@@ -1,0 +1,10 @@
+# PsdfMpc.srv - Service definition for PSDF-MPC local planner
+#
+# Request
+geometry_msgs/PoseStamped   current_pose    # Robot's current pose (planning frame)
+geometry_msgs/Twist         current_velocity # Current velocity
+nav_msgs/Path               reference_path   # Desired reference path for horizon
+---
+# Response
+geometry_msgs/TwistStamped  cmd_vel          # Commanded velocity
+bool                        success          # True if optimization succeeded

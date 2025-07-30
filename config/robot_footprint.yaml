@@ -1,0 +1,6 @@
+# Convex polygon footprint (meters) in base_link frame
+footprint:
+  - [0.20, 0.15]
+  - [0.20, -0.15]
+  - [-0.20, -0.15]
+  - [-0.20, 0.15]

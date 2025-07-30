@@ -1,0 +1,69 @@
+# Scout Mini Gmapping Parameters
+# Optimized for Velodyne VLP-16 Lidar
+
+# Map update frequency (Hz)
+map_update_interval: 1.0
+
+# Maximum usable range for laser (meters) - adjusted for Velodyne VLP-16
+maxUrange: 15.0
+
+# Standard deviation of the scan matching process
+sigma: 0.05
+
+# Kernel size for scan matching
+kernelSize: 1
+
+# Linear step size for scan matching
+lstep: 0.05
+
+# Angular step size for scan matching  
+astep: 0.05
+
+# Number of iterations for scan matching
+iterations: 5
+
+# Standard deviation for the scan matching process
+lsigma: 0.075
+
+# Gain for smoothing the likelihood
+ogain: 3.0
+
+# Number of beams to skip in each scan
+lskip: 0
+
+# Minimum score for considering a match
+minimumScore: 30
+
+# Odometry error parameters (adjusted for Scout Mini dimensions)
+# Translation noise coefficient (m/m)
+srr: 0.01
+# Translation noise coefficient (m/rad)  
+srt: 0.02
+# Rotation noise coefficient (rad/m)
+str: 0.01
+# Rotation noise coefficient (rad/rad)
+stt: 0.02
+
+# Minimum travel required to process a laser scan
+linearUpdate: 0.5
+angularUpdate: 0.2
+temporalUpdate: 0.5
+
+# Particle filter parameters
+resampleThreshold: 0.5
+particles: 80
+
+# Map size (meters) - increased for larger environments
+xmin: -50.0
+ymin: -50.0
+xmax: 50.0
+ymax: 50.0
+
+# Map resolution (meters/pixel)
+delta: 0.05
+
+# Likelihood sampling parameters
+llsamplerange: 0.01
+llsamplestep: 0.01
+lasamplerange: 0.005
+lasamplestep: 0.005
