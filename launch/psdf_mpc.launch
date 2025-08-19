@@ -3,17 +3,17 @@
   <!-- PSDF-MPC Local Planner Launch File -->
   
   <!-- Parameters -->
-  <arg name="robot_name" default="robot" />
+  <arg name="robot_name" default="" />
   <arg name="config_dir" default="$(find psdf_ros)/config" />
   
   <!-- Load PSDF-MPC parameters -->
-  <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" ns="$(arg robot_name)" />
+  <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
   
   <!-- Load robot footprint -->
-  <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" ns="$(arg robot_name)" />
+  <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
   
   <!-- PSDF-ROS Service Node -->
-  <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen" ns="$(arg robot_name)">
+  <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
     <param name="robot_footprint" value="$(arg config_dir)/robot_footprint.yaml" />
     
     <!-- MPC Parameters -->
@@ -36,7 +36,7 @@
     <param name="max_clusters" value="20" />
     <param name="max_edges_per_cluster" value="64" />
     <param name="emergency_stop_on_fail" value="true" />
-    <param name="service_timeout" value="0.2" />
+    <param name="service_timeout" value="2.0" />
     
     <!-- Topics and frames -->
     <param name="obstacle_topic" value="/detected_edges" />
@@ -45,7 +45,7 @@
   
   <!-- Optional: move_base with PSDF local planner -->
   <group if="$(eval arg('robot_name') != '')">
-    <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen" ns="$(arg robot_name)">
+    <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
       <!-- Use PSDF local planner -->
       <param name="base_local_planner" value="psdf_local_planner/PSDFLocalPlanner" />
       

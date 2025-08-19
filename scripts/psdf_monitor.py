@@ -34,6 +34,7 @@ class PSDFMonitor:
             'edges_count': 0,
             'cmd_vel_count': 0,
             'last_cmd_vel_time': 0.0,
+            'last_cmd_vel_linear_x': 0.0,
             'odom_count': 0,
             'last_odom_time': 0.0
         }
@@ -63,6 +64,7 @@ class PSDFMonitor:
         with self.lock:
             self.stats['cmd_vel_count'] += 1
             self.stats['last_cmd_vel_time'] = time.time()
+            self.stats['last_cmd_vel_linear_x'] = msg.linear.x
 
     def odom_callback(self, msg):
         """Track odometry updates"""
@@ -74,7 +76,8 @@ class PSDFMonitor:
         """Track obstacle edge updates"""
         with self.lock:
             self.stats['obstacles_count'] = len(msg.clusters)
-            self.stats['edges_count'] = sum(len(cluster.edges) for cluster in msg.clusters)
+            # EdgeClusters message uses 'segments' field per cluster
+            self.stats['edges_count'] = sum(len(cluster.segments) for cluster in msg.clusters)
 
     def test_service_performance(self):
         """Test PSDF-MPC service performance"""
@@ -178,6 +181,7 @@ class PSDFMonitor:
             rospy.loginfo(f"Obstacles: {stats_copy['obstacles_count']} clusters, "
                          f"{stats_copy['edges_count']} edges")
             rospy.loginfo(f"Data Age: cmd_vel={cmd_vel_age:.1f}s, odom={odom_age:.1f}s")
+            rospy.loginfo(f"CmdVel: linear.x={stats_copy['last_cmd_vel_linear_x']:.3f} m/s")
             
             # Warnings for performance issues
             if avg_service_time > 0.1:  # 100ms threshold

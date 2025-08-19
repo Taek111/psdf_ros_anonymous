@@ -125,7 +125,7 @@ The `psdf_local_planner` is a C++ class that implements the ROS `nav_core::Ba
         
     3. Populate a service request (`PsdfMpc.srv`) with the current state and the reference trajectory (see **ROS Interfaces** below for details).
         
-    4. Call the `/psdf_mpc` service (using a ROS service client). A timeout is set (for example, if no response within 0.1–0.2 seconds, it will consider the call failed for safety).
+    4. Call the `/psdf_mpc` service (using a ROS service client). A timeout is set (default: 2.0 seconds, configurable via the `service_timeout` parameter).
         
     5. Upon receiving the service response, extract the recommended velocity command (linear and angular velocity).
         
@@ -370,7 +370,7 @@ The behavior of PSDF-ROS is highly configurable. Parameters are set via ROS para
 | `frame_id/ base_frame`            | The robot base frame (the frame of the footprint polygon).                                                                                                                                                                               | **"base_link"**                                  |
 | `robot_footprint`                 | The robot’s footprint specification. This can be given as an array of points (e.g., `[[x1, y1], [x2, y2], ...]` in meters around the base_link origin). Alternatively, a radius can be given for circular footprint. **Must be convex.** | **None (must be provided)**                      |
 | `emergency_stop_on_fail`          | Whether to enforce a full stop when the MPC fails or is infeasible. If false, the controller might attempt other measures (not recommended unless a secondary planner is available).                                                     | **true**                                         |
-| `service_timeout`                 | Timeout for waiting on the solver service (in seconds). The plugin side uses this; if the service call exceeds this, it aborts and triggers fallback.                                                                                    | **0.2** s                                        |
+| `service_timeout`                 | Timeout for waiting on the solver service (in seconds). The plugin side uses this; if the service call exceeds this, it aborts and triggers fallback.                                                                                    | **2.0** s                                        |
 
 These parameters are typically loaded via the `psdf_local_planner.yaml` and can be adjusted to tune performance:
 

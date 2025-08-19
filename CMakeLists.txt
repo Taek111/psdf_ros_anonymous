@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf
+  tf2_ros
 )
 
 ## System dependencies are found with CMake's conventions
@@ -115,7 +116,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES psdf_local_planner
-  CATKIN_DEPENDS message_runtime geometry_msgs nav_msgs std_msgs nav_core costmap_2d pluginlib tf
+  CATKIN_DEPENDS message_runtime geometry_msgs nav_msgs std_msgs nav_core costmap_2d pluginlib tf tf2_ros
 )
 
 ###########
@@ -182,8 +183,6 @@ install(FILES psdf_local_planner_plugin.xml
 ## Install Python node script
 catkin_install_python(PROGRAMS
   scripts/psdf_ros_node.py
-  scripts/simple_diff_drive.py
-  scripts/fake_laser_scan.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

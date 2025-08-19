@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-PSDF-ROS service node
-- Exposes the `/psdf_mpc` service backed by a PSDF-based MPC optimizer.
-- Subscribes to obstacle inputs (edge clusters or line segments) and publishes RViz markers.
+PSDF-ROS Service Node
+Provides /psdf_mpc service with real PSDF optimization.
+Integrates with ROS navigation stack via move_base local planner plugin.
 """
 
 import rospy
@@ -14,7 +14,6 @@ import os
 from typing import Optional, List
 import numpy as np
 import torch
-import tf2_ros
 
 # Add current script directory to Python path for module imports
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +22,6 @@ if script_dir not in sys.path:
 
 # ROS imports
 from psdf_ros.msg import EdgeClusters, EdgeCluster, EdgeSegment
-from laser_line_extraction.msg import LineSegmentList, LineSegment
 from geometry_msgs.msg import PoseStamped, Twist, TwistStamped, Point
 from nav_msgs.msg import Path
 from psdf_ros.srv import PsdfMpc, PsdfMpcResponse
@@ -32,9 +30,8 @@ from visualization_msgs.msg import Marker
 
 # Import separated modules
 from psdf_wrapper import PSDFWrapper
-from mpc_optimizer import PSDFOptimizer, PSDFOptimizerConfig
+from mpc_optimizer import MPCOptimizer, PSDFOptimizerConfig
 from utils import DifferentialDriveSystem, State    
-from obstacle_detector import line_segments_to_edgeclusters
 
 
 class PSDFRosNode:
@@ -55,18 +52,14 @@ class PSDFRosNode:
         self.failure_count = 0
         self.success_count = 0
         
-        # TF buffer/listener for frame transforms
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
-
-        # Subscribe to per-segment input (laser_line_extraction output)
-        self.line_seg_sub = rospy.Subscriber(
-            self.params['line_segment_topic'], LineSegmentList, self.line_segment_cb, queue_size=10)
+        # ROS interfaces
+        self.edge_sub = rospy.Subscriber(
+            self.params['obstacle_topic'], EdgeClusters, self.edge_cb, queue_size=1)
         self.marker_pub = rospy.Publisher('edge_clusters_marker', Marker, queue_size=10)
-        self.service = rospy.Service('/psdf_mpc', PsdfMpc, self.handle_service)
+        self.service = rospy.Service('psdf_mpc', PsdfMpc, self.handle_service)
         
         rospy.loginfo(f"PSDFRosNode ready – horizon={self.params['horizon']}, dt={self.params['dt']}")
-        rospy.loginfo(f"Listening for line segments on: {self.params['line_segment_topic']} (target frame={self.params['global_frame']})")
+        rospy.loginfo(f"Listening for obstacles on: {self.params['obstacle_topic']}")
 
     def load_params(self):
         """Load parameters from parameter server."""
@@ -74,9 +67,8 @@ class PSDFRosNode:
             'horizon': rospy.get_param('~horizon', 15),
             'dt': rospy.get_param('~dt', 0.1),
             'obstacle_topic': rospy.get_param('~obstacle_topic', '/detected_edges'),
-            'line_segment_topic': rospy.get_param('~line_segment_topic', '/line_segments'),
-            'robot_base': rospy.get_param('~robot_base', 'base_link'),
-            'global_frame': rospy.get_param('~global_frame', 'odom'),
+            'local_frame': rospy.get_param('~frame_id/local_frame', 'base_link'),
+            'global_frame': rospy.get_param('~frame_id/global_frame', 'map'),
             'd_safe': rospy.get_param('~d_safe', 0.2),
             'max_clusters': rospy.get_param('~max_clusters', 20),
             'max_edges_per_cluster': rospy.get_param('~max_edges_per_cluster', 64),
@@ -100,9 +92,9 @@ class PSDFRosNode:
                     rospy.loginfo(f"Loaded footprint: {self.params['footprint']}")  
             except Exception as e:
                 rospy.logwarn(f"Failed to load footprint file: {e}")
-                self.params['footprint'] = [[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]
+                self.params['footprint'] = [[-0.25, -0.25], [0.25 -0.25], [0.25, 0.25], [-0.25, 0.25]]
         else:
-            self.params['footprint'] = [[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]
+            self.params['footprint'] = [[-0.25, -0.25], [0.25 -0.25], [0.25, 0.25], [-0.25, 0.25]]
     
     def setup_optimizer(self):
         """Initialize the MPC optimizer."""
@@ -123,7 +115,7 @@ class PSDFRosNode:
         cfg.omegamax = self.params['omegamax']
         cfg.d_safe = self.params['d_safe']
 
-        self.optimizer = PSDFOptimizer()
+        self.optimizer = MPCOptimizer()
 
         # Set up the optimizer with the system we just created
         # Create a dummy reference trajectory and initial obstacles for setup
@@ -138,80 +130,22 @@ class PSDFRosNode:
         # The vertices are used to create the robot geometry
         self.system = DifferentialDriveSystem(x_init, u_init, self.params['footprint'])
         
-    def line_segment_cb(self, msg: LineSegmentList):
-        """Callback for LineSegmentList input.
-        - Transforms incoming segments from source frame (e.g., base_link) to target frame (global_frame, e.g., odom).
-        - Builds EdgeClusters in target frame and updates the optimizer and markers.
-        """
+    
+    def edge_cb(self, msg: EdgeClusters):
+        """Callback for obstacle edge clusters."""
         try:
-            num_segs = len(msg.line_segments)
-            # rospy.loginfo(f"[PSDFRosNode] line_segment_cb: received {num_segs} segments")
-
-            # Determine frames
-            source_frame = getattr(msg.header, 'frame_id', '') or self.params.get('robot_base', 'base_link')
-            target_frame = self.params.get('global_frame', 'odom')
-
-            # Lookup transform target<-source (e.g., odom <- base_link)
-            stamp = getattr(msg.header, 'stamp', rospy.Time(0)) or rospy.Time(0)
-            try:
-                tf_stamped = self.tf_buffer.lookup_transform(target_frame, source_frame, stamp, rospy.Duration(0.2))
-            except Exception as ex:
-                rospy.logwarn(f"[PSDFRosNode] TF lookup failed {source_frame}->{target_frame} at {stamp.to_sec():.3f}: {ex}. Using latest transform.")
-                tf_stamped = self.tf_buffer.lookup_transform(target_frame, source_frame, rospy.Time(0), rospy.Duration(0.5))
-
-            # Extract planar transform (x,y,yaw) from TransformStamped
-            t = tf_stamped.transform.translation
-            q = tf_stamped.transform.rotation
-            _, _, yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])
-            c, s = np.cos(yaw), np.sin(yaw)
-            tx, ty = float(t.x), float(t.y)
-
-            def tx_point(x: float, y: float):
-                X = c * x - s * y + tx
-                Y = s * x + c * y + ty
-                return X, Y
-
-            # Transform all segments to target_frame
-            transformed_segments: List[LineSegment] = []
-            for ls in msg.line_segments:
-                new_ls = LineSegment()
-                # Copy optional fields (not used by converter)
-                try:
-                    new_ls.radius = ls.radius
-                    new_ls.angle = ls.angle
-                    new_ls.covariance = ls.covariance
-                except Exception:
-                    pass
-                x1, y1 = float(ls.start[0]), float(ls.start[1])
-                x2, y2 = float(ls.end[0]), float(ls.end[1])
-                X1, Y1 = tx_point(x1, y1)
-                X2, Y2 = tx_point(x2, y2)
-                new_ls.start = [X1, Y1]
-                new_ls.end = [X2, Y2]
-                transformed_segments.append(new_ls)
-
-            # Build EdgeClusters in target frame
-            ec_msg = line_segments_to_edgeclusters(
-                transformed_segments,
-                d_safe=self.params['d_safe'],
-                max_clusters=self.params['max_clusters'],
-                max_edges_per_cluster=self.params['max_edges_per_cluster'],
-                frame_id=target_frame
-            )
-
-            # Update optimizer
-            clusters_A, clusters_B = self.convert_ros_to_tensors(ec_msg)
-            # rospy.loginfo(f"[PSDFRosNode] update edge clusters: K={len(clusters_A)}, first_edges={clusters_A[0].shape[0] if clusters_A else 0}")
+            clusters_A, clusters_B = self.convert_ros_to_tensors(msg)
             self.optimizer.psdf_wrapper.update_edge_clusters(clusters_A, clusters_B)
-            self.edge_clusters = ec_msg
+            self.edge_clusters = msg
             self.last_obstacle_update = rospy.Time.now()
-
+            rospy.logdebug(f"Updated obstacles: {len(clusters_A)} clusters")
+            
             # Publish visualization markers
-            marker = self.convert_ros_to_markers(ec_msg, "LINE_LIST")
+            marker = self.convert_ros_to_markers(msg, "LINE_LIST")
             self.marker_pub.publish(marker)
         except Exception as e:
-            rospy.logerr(f"[PSDFRosNode] Failed to process LineSegmentList: {e}")
-
+            rospy.logerr(f"Failed to update obstacles: {e}")
+    
     def convert_ros_to_tensors(self, msg: EdgeClusters):
         """Convert ROS EdgeClusters message to PyTorch tensors."""
         clusters_A, clusters_B = [], []
@@ -242,16 +176,16 @@ class PSDFRosNode:
         """
         marker = Marker()
         marker.header.stamp = rospy.Time.now()
-        marker.header.frame_id = self.params['global_frame'] 
+        marker.header.frame_id = self.params['global_frame']
         marker.ns = "edge_clusters"
         marker.id = 0
         marker.type = Marker.LINE_LIST if marker_type == "LINE_LIST" else Marker.LINE_STRIP
         marker.action = Marker.ADD
         marker.pose.orientation.w = 1.0
-        marker.scale.x = 0.1  # Line width
+        marker.scale.x = 0.01  # Line width
         marker.color.a = 1.0   # Alpha
-        marker.color.r = 0.0   
-        marker.color.g = 1.0    # Green
+        marker.color.r = 1.0   # Red
+        marker.color.g = 0.0
         marker.color.b = 0.0
         
         # Add points from all clusters
@@ -361,7 +295,7 @@ class PSDFRosNode:
         resp = PsdfMpcResponse()
         resp.cmd_vel = TwistStamped()
         resp.cmd_vel.header.stamp = rospy.Time.now()
-        resp.cmd_vel.header.frame_id = self.params['global_frame']
+        resp.cmd_vel.header.frame_id = self.params['local_frame']
         resp.cmd_vel.twist.linear.x = float(v)
         resp.cmd_vel.twist.angular.z = float(omega)
         resp.success = success

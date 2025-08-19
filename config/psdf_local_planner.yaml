@@ -5,10 +5,10 @@ Q: [50.0, 50.0, 1.0]
 R: [0.2, 0.05]
 terminal_weight: 1.0
 d_safe: 0.001
-v_max: 0.5
-v_min: -0.5
-omega_max: 1.2
-omega_min: -1.2
+vmax: 0.5        # renamed from v_max
+vmin: -0.5       # renamed from v_min
+omegamax: 1.2    # renamed from omega_max
+omegamin: -1.2   # renamed from omega_min
 accel_lim: 0.2
 omega_accel_lim: 0.8
 allow_reverse: true
@@ -31,5 +31,5 @@ frame_id:
   local_frame: "odom"
   base_frame: "base_link"
 # General
-service_timeout: 0.2
+service_timeout: 2.0
 emergency_stop_on_fail: true

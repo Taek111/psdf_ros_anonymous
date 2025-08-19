@@ -1,0 +1,13 @@
+# Default MPC Optimizer parameters
+horizon: 20
+dt: 0.1
+mat_Q: [50.0, 50.0, 1.0]
+mat_R: [0.2, 0.05]
+terminal_weight: 1.0
+vmin: -0.7
+vmax: 0.7
+omegamin: -1.2
+omegamax: 1.2
+d_safe: 0.2
+use_soft_constraint: false
+slack_weight: 1e16

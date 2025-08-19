@@ -22,9 +22,9 @@ class TestPSDFService(unittest.TestCase):
         # Wait for service to be available
         rospy.loginfo("Waiting for PSDF-MPC service...")
         try:
-            rospy.wait_for_service('/robot/psdf_mpc', timeout=10.0)
+            rospy.wait_for_service('/psdf_mpc', timeout=10.0)
             # Create service proxy
-            self.psdf_service = rospy.ServiceProxy('/robot/psdf_mpc', PsdfMpc)
+            self.psdf_service = rospy.ServiceProxy('/psdf_mpc', PsdfMpc)
             rospy.loginfo("PSDF-MPC service is available")
         except rospy.ROSException:
             rospy.logwarn("Service not found, trying without namespace...")
@@ -42,19 +42,19 @@ class TestPSDFService(unittest.TestCase):
         
         # Current pose (robot at origin)
         req.current_pose = PoseStamped()
-        req.current_pose.header.frame_id = "odom"
+        req.current_pose.header.frame_id = "map"
         req.current_pose.header.stamp = rospy.Time.now()
         req.current_pose.pose.position = Point(0.0, 0.0, 0.0)
         req.current_pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
         
         # Simple reference path (straight line forward)
         req.reference_path = Path()
-        req.reference_path.header.frame_id = "odom"
+        req.reference_path.header.frame_id = "map"
         req.reference_path.header.stamp = rospy.Time.now()
         
         for i in range(5):
             pose = PoseStamped()
-            pose.header.frame_id = "odom"
+            pose.header.frame_id = "map"
             pose.pose.position = Point(float(i) * 0.5, 0.0, 0.0)
             pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
             req.reference_path.poses.append(pose)
@@ -66,13 +66,13 @@ class TestPSDFService(unittest.TestCase):
             call_time = time.time() - start_time
             
             rospy.loginfo(f"Service call completed in {call_time:.3f}s")
-            rospy.loginfo(f"Response: success={resp.success}, v={resp.linear_velocity:.3f}, omega={resp.angular_velocity:.3f}")
+            rospy.loginfo(f"Response: success={resp.success}, v={resp.cmd_vel.twist.linear.x:.3f}, omega={resp.cmd_vel.twist.angular    .z:.3f}")
             
             # Basic checks
             self.assertIsInstance(resp, PsdfMpcResponse)
             self.assertIsInstance(resp.success, bool)
-            self.assertIsInstance(resp.linear_velocity, float)
-            self.assertIsInstance(resp.angular_velocity, float)
+            self.assertIsInstance(resp.cmd_vel.twist.linear.x, float)
+            self.assertIsInstance(resp.cmd_vel.twist.angular.z, float)
             
             # Service should complete within reasonable time
             self.assertLess(call_time, 1.0, "Service call took too long")
@@ -84,6 +84,9 @@ class TestPSDFService(unittest.TestCase):
     
     def test_service_with_obstacles(self):
         """Test service call with obstacle data"""
+        
+        # Measure total time from obstacle publishing to service response
+        total_start_time = time.time()
         
         # Publish some obstacle data first
         edge_pub = rospy.Publisher('/detected_edges', EdgeClusters, queue_size=1)
@@ -98,7 +101,7 @@ class TestPSDFService(unittest.TestCase):
         
         # Add a simple obstacle cluster (square obstacle)
         cluster = EdgeCluster()
-        cluster.id = 1
+        # cluster.id = 1  # id field doesn't exist in EdgeCluster.msg
         
         # Square obstacle edges
         edges = [
@@ -110,9 +113,9 @@ class TestPSDFService(unittest.TestCase):
         
         for start, end in edges:
             edge = EdgeSegment()
-            edge.start.x, edge.start.y = start
-            edge.end.x, edge.end.y = end
-            cluster.edges.append(edge)
+            edge.x1, edge.y1 = start
+            edge.x2, edge.y2 = end
+            cluster.segments.append(edge)
         
         obstacles.clusters.append(cluster)
         
@@ -126,30 +129,33 @@ class TestPSDFService(unittest.TestCase):
         # Now test service call
         req = PsdfMpcRequest()
         req.current_pose = PoseStamped()
-        req.current_pose.header.frame_id = "odom"
+        req.current_pose.header.frame_id = "map"
         req.current_pose.header.stamp = rospy.Time.now()
         req.current_pose.pose.position = Point(0.0, 0.0, 0.0)
         req.current_pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
         
         # Path that would go through obstacle
         req.reference_path = Path()
-        req.reference_path.header.frame_id = "odom"
+        req.reference_path.header.frame_id = "map"
         req.reference_path.header.stamp = rospy.Time.now()
         
         for i in range(8):
             pose = PoseStamped()
-            pose.header.frame_id = "odom"
+            pose.header.frame_id = "map"
             pose.pose.position = Point(float(i) * 0.5, 1.5, 0.0)  # Path through obstacle
             pose.pose.orientation = Quaternion(0.0, 0.0, 0.0, 1.0)
             req.reference_path.poses.append(pose)
         
         try:
-            start_time = time.time()
+            service_start_time = time.time()
             resp = self.psdf_service(req)
-            call_time = time.time() - start_time
+            service_call_time = time.time() - service_start_time
             
-            rospy.loginfo(f"Service call with obstacles completed in {call_time:.3f}s")
-            rospy.loginfo(f"Response: success={resp.success}, v={resp.linear_velocity:.3f}, omega={resp.angular_velocity:.3f}")
+            total_time = time.time() - total_start_time
+            
+            rospy.loginfo(f"Total time from obstacle publishing to service response: {total_time:.3f}s")
+            rospy.loginfo(f"Service call time: {service_call_time:.3f}s")
+            rospy.loginfo(f"Response: success={resp.success}, v={resp.cmd_vel.twist.linear.x:.3f}, omega={resp.cmd_vel.twist.angular.z:.3f}")
             
             # Should still get a response
             self.assertIsInstance(resp, PsdfMpcResponse)
