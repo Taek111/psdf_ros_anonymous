@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Scout Mini PSDF-MPC Integration Test Launch File -->
+    <!-- This launch file combines Scout Mini Gazebo simulation with PSDF-MPC local planner -->
+    
+    <!-- Arguments -->
+    <arg name="robot_namespace" default="/"/>
+    <arg name="world_name" default="$(find psdf_ros)/worlds/2d_maze_scaled.world"/>
+    <arg name="config_dir" default="$(find psdf_ros)/config" />
+    <arg name="use_rviz" default="true" />
+    <arg name="use_move_base" default="true" />
+    <arg name="x" default="-6.0"/>
+    <arg name="y" default="3.0"/>
+    <arg name="z" default="0.0"/>
+    <arg name="yaw" default="0.0"/>
+  
+    <!-- 1. PSDF-ROS Service Node -->
+    <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
+      <!-- Load planner params into node private namespace (~) -->
+      <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
+      <!-- robot_footprint path is used by node to read actual YAML -->
+      <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml" />
+    </node>
+
+    <!-- 2. Load PSDF-MPC parameters for psdf_ros_node (private namespace) -->
+    <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
+    
+    <!-- 3. Navigation stack with PSDF local planner -->
+    <group if="$(arg use_move_base)">
+        <!-- Map server (if using a static map)-->
+        <node name="map_server" pkg="map_server" type="map_server" 
+              args="$(find psdf_ros)/maps/2d_maze.yaml" output="screen" />
+        
+        <!-- AMCL for localization -->
+        <node pkg="amcl" type="amcl" name="amcl" output="screen">
+            <!-- Initial pose estimate -->
+            <param name="initial_pose_x" value="$(arg x)"/>
+            <param name="initial_pose_y" value="$(arg y)"/>
+            <param name="initial_pose_a" value="$(arg yaw)"/>
+            
+            <!-- AMCL parameters -->
+            <param name="min_particles" value="100"/>
+            <param name="max_particles" value="500"/>
+            <param name="update_min_d" value="0.2"/>
+            <param name="update_min_a" value="0.2"/>
+            <param name="resample_interval" value="1"/>
+            <param name="transform_
+            tolerance" value="0.1"/>
+            <param name="recovery_alpha_slow" value="0.0"/>
+            <param name="recovery_alpha_fast" value="0.0"/>
+        </node>
+        
+        <!-- Move base with PSDF local planner -->
+        <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+            <!-- Use PSDF local planner -->
+            <param name="base_local_planner" value="psdf_local_planner/PSDFLocalPlanner" />
+            
+            <!-- Global planner -->
+            <param name="base_global_planner" value="navfn/NavfnROS" />
+            
+            <!-- Basic move_base parameters -->
+            <rosparam file="$(find psdf_ros)/config/move_base_params.yaml" command="load" />
+            
+            <!-- Costmap parameters -->
+            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(find psdf_ros)/config/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(find psdf_ros)/config/global_costmap_params.yaml" command="load" />
+            
+            <!-- Robot footprint for costmaps -->
+            <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml"/>
+        </node>
+    </group>
+    
+    <!-- 6. Visualization -->
+    <!-- <group if="$(arg use_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find psdf_ros)/rviz/psdf_navigation.rviz" 
+              output="screen" />
+    </group> -->
+
+   
+</launch>
