@@ -5,11 +5,12 @@
     <arg name="world_name" default="$(find psdf_ros)/worlds/2d_maze_scaled.world"/>
     <!-- <arg name="world_name" default="$(find scout_gazebo_sim)/worlds/clearpath_playpen.world"/> -->
     <!-- <arg name="world_name" default="$(find scout_gazebo_sim)worlds/weston_robot_empty.world"/> -->
+    <arg name="use_rviz" default="true" />
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="false"/>
+        <arg name="gui" value="true"/>
         <arg name="headless" value="false"/>
         <arg name="debug" value="false"/>
     </include>
@@ -78,4 +79,11 @@
         <param name="~outlier_dist" value="0.06" />
         <param name="~min_line_points" value="10" />
     </node>
+
+     <!-- 6. Visualization -->
+    <group if="$(arg use_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find psdf_ros)/rviz/psdf_navigation.rviz" 
+              output="screen" />
+    </group>
 </launch>

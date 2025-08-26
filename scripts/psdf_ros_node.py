@@ -27,7 +27,7 @@ from laser_line_extraction.msg import LineSegmentList, LineSegment
 from geometry_msgs.msg import PoseStamped, Twist, TwistStamped, Point
 from nav_msgs.msg import Path
 from psdf_ros.srv import PsdfMpc, PsdfMpcResponse
-from tf.transformations import euler_from_quaternion
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from visualization_msgs.msg import Marker
 
 # Import separated modules
@@ -63,16 +63,23 @@ class PSDFRosNode:
         self.line_seg_sub = rospy.Subscriber(
             self.params['line_segment_topic'], LineSegmentList, self.line_segment_cb, queue_size=10)
         self.marker_pub = rospy.Publisher('edge_clusters_marker', Marker, queue_size=10)
+        # Debug publisher: horizon-limited reference path used by MPC
+        self.ref_pub = rospy.Publisher('psdf_ref_path', Path, queue_size=1, latch=True)
+        # Publisher: optimized solution trajectory path
+        self.sol_path_pub = rospy.Publisher('psdf_solution_path', Path, queue_size=1, latch=True)
         self.service = rospy.Service('/psdf_mpc', PsdfMpc, self.handle_service)
         
-        rospy.loginfo(f"PSDFRosNode ready – horizon={self.params['horizon']}, dt={self.params['dt']}")
-        rospy.loginfo(f"Listening for line segments on: {self.params['line_segment_topic']} (target frame={self.params['global_frame']})")
+        rospy.loginfo_throttle(1.0, f"PSDFRosNode ready – horizon={self.params['horizon']}, dt={self.params['dt']}")
+        rospy.loginfo_throttle(1.0, f"Listening for line segments on: {self.params['line_segment_topic']} (target frame={self.params['global_frame']})")
 
     def load_params(self):
         """Load parameters from parameter server."""
         self.params = {
             'horizon': rospy.get_param('~horizon', 15),
             'dt': rospy.get_param('~dt', 0.1),
+            # Reference sampling: target spacing between ref points [m].
+            # If <= 0, it will default to vmax * dt, clamped by a small minimum.
+            'ref_ds': rospy.get_param('~ref_ds', 0.0),
             'obstacle_topic': rospy.get_param('~obstacle_topic', '/detected_edges'),
             'line_segment_topic': rospy.get_param('~line_segment_topic', '/line_segments'),
             'robot_base': rospy.get_param('~robot_base', 'base_link'),
@@ -91,13 +98,13 @@ class PSDFRosNode:
         }
         
         # Load robot footprint
-        footprint_file = rospy.get_param('~robot_footprint', '')
+        footprint_file = rospy.get_param('~footprint', '')
         if footprint_file:
             try:
                 with open(footprint_file, 'r') as f:
                     fp_yaml = yaml.safe_load(f)
-                    self.params['footprint'] = fp_yaml.get('robot_footprint', [])
-                    rospy.loginfo(f"Loaded footprint: {self.params['footprint']}")  
+                    self.params['footprint'] = fp_yaml.get('footprint', [])
+                    rospy.loginfo_throttle(1.0, f"Loaded footprint: {self.params['footprint']}")  
             except Exception as e:
                 rospy.logwarn(f"Failed to load footprint file: {e}")
                 self.params['footprint'] = [[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]
@@ -130,7 +137,7 @@ class PSDFRosNode:
         initial_ref = np.zeros((cfg.horizon, 3))  # [x, y, theta] for each time step
         initial_obstacles = []  # Empty list for now
         self.optimizer.setup(cfg, self.system, initial_ref, initial_obstacles)
-        rospy.loginfo("MPC optimizer (Acados) initialized")
+        rospy.loginfo_throttle(1.0, "MPC optimizer (Acados) initialized")
     
     def create_system(self, x_init=np.array([0.0, 0.0, 0.0]), u_init=np.array([0.0, 0.0])):
         """Create robot system from parameters."""
@@ -273,40 +280,32 @@ class PSDFRosNode:
 
     def handle_service(self, req):
         """Handle PSDF-MPC service request."""
-        rospy.loginfo("[PSDF_SERVICE] Received PSDF-MPC service request")
         start_time = time.time()
         
         try:
             # Extract current state and build reference trajectory
-            rospy.loginfo("[PSDF_SERVICE] Extracting state from current pose...")
             state = self.extract_state(req.current_pose, req.current_velocity)
-            rospy.loginfo(f"[PSDF_SERVICE] Extracted state: {state}")
-            
-            rospy.loginfo("[PSDF_SERVICE] Building reference trajectory...")
             ref_trajectory = self.build_reference_trajectory(req.reference_path, state)
-            rospy.loginfo(f"[PSDF_SERVICE] Built reference trajectory with {len(ref_trajectory)} points")
             
             # Solve optimization problem
-            rospy.loginfo("[PSDF_SERVICE] Starting optimization solve...")
-            success, u_opt, info = self.optimizer.solve(state, ref_trajectory)
-            rospy.loginfo(f"[PSDF_SERVICE] Optimization result: success={success}, u_opt={u_opt}, info={info}")
+            success, u_opt, x_traj, info = self.optimizer.solve(state, ref_trajectory)
             
             # Extract control commands
             v, omega = u_opt
             resp = self.create_response(v, omega, success)
-            rospy.loginfo(f"[PSDF_SERVICE] Created response: v={v}, omega={omega}, success={success}")
+            rospy.loginfo_throttle(1.0, f"[PSDF_SERVICE] Created response: v={v}, omega={omega}, success={success}")
+
+            # Publish solved state trajectory as Path
+            if success and x_traj is not None:
+                self.publish_solution_path(x_traj)
             
             # Log performance
             solve_time = time.time() - start_time
             self.solve_times.append(solve_time)
-            if success:
-                self.success_count += 1
-                rospy.loginfo(f"[PSDF_SERVICE] Solve successful in {solve_time:.3f}s")
-            else:
-                self.failure_count += 1
+            if not success:
                 rospy.logwarn(f"[PSDF_SERVICE] Solve failed in {solve_time:.3f}s")
             
-            rospy.loginfo(f"PSDF-MPC solved in {solve_time:.3f}s: v={v:.3f}, ω={omega:.3f}")
+            rospy.loginfo_throttle(1.0, f"PSDF-MPC solved in {solve_time:.3f}s: v={v:.3f}, ω={omega:.3f}")
             return resp
             
         except Exception as e:
@@ -314,6 +313,36 @@ class PSDFRosNode:
             self.failure_count += 1
             rospy.logerr(f"[PSDF_SERVICE] PSDF-MPC solver failed: {e}")
             return self.create_response(0.0, 0.0, False)
+
+    def publish_solution_path(self, x_traj: np.ndarray):
+        """Convert MPC state trajectory (nx, N+1) to Path and publish."""
+        try:
+            if x_traj is None or x_traj.size == 0:
+                return
+            path_msg = Path()
+            path_msg.header.stamp = rospy.Time.now()
+            path_msg.header.frame_id = self.params['global_frame']
+
+            # Expecting shape (nx, T) with nx >= 3
+            nx, T = x_traj.shape[0], x_traj.shape[1]
+            for k in range(T):
+                x = float(x_traj[0, k])
+                y = float(x_traj[1, k])
+                th = float(x_traj[2, k]) if nx >= 3 else 0.0
+                ps = PoseStamped()
+                ps.header = path_msg.header
+                ps.pose.position.x = x
+                ps.pose.position.y = y
+                qx, qy, qz, qw = quaternion_from_euler(0.0, 0.0, th)
+                ps.pose.orientation.x = qx
+                ps.pose.orientation.y = qy
+                ps.pose.orientation.z = qz
+                ps.pose.orientation.w = qw
+                path_msg.poses.append(ps)
+
+            self.sol_path_pub.publish(path_msg)
+        except Exception as ex:
+            rospy.logwarn(f"[PSDFRosNode] Failed to publish solution path: {ex}")
                 
     def extract_state(self, pose_stamped: PoseStamped, twist: Twist = None) -> State:
         """Extract [x, y, theta] state from PoseStamped and optional Twist.
@@ -336,24 +365,99 @@ class PSDFRosNode:
             return State(np.array([pos.x, pos.y, yaw]), np.array([twist.linear.x, twist.angular.z]))
         
     def build_reference_trajectory(self, path: Path, current_state: State) -> np.ndarray:
-        """Build reference trajectory for MPC horizon."""
+        """Build reference trajectory for MPC horizon.
+
+        This function downsamples/resamples the incoming global/local path by
+        distance to ensure the N-step horizon covers a reasonable lookahead
+        length even when the input path has very high resolution.
+        """
         if not path.poses:
             # If no path poses, create reference trajectory from current state
             return np.tile(current_state._x, (self.params['horizon'], 1))
-            
+
+        # Build arrays of XY from incoming path and start from the closest point to current pose
+        xs_all = np.array([p.pose.position.x for p in path.poses], dtype=float)
+        ys_all = np.array([p.pose.position.y for p in path.poses], dtype=float)
+        # Find nearest path index to current pose to anchor the horizon
+        dx_all = xs_all - float(current_state._x[0])
+        dy_all = ys_all - float(current_state._x[1])
+        k0 = int(np.argmin(dx_all*dx_all + dy_all*dy_all)) if xs_all.size > 0 else 0
+        xs = xs_all[k0:]
+        ys = ys_all[k0:]
+        M = len(xs)
+        
+        # Cumulative arc-length along the path
+        dxy = np.sqrt(np.diff(xs, prepend=xs[0])**2 + np.diff(ys, prepend=ys[0])**2)
+        dxy[0] = 0.0
+        s = np.cumsum(dxy)
+
+        N = int(self.params['horizon'])
+        dt = float(self.params['dt'])
+        vmax = float(self.params.get('vmax', 1.0))
+        ref_ds_param = float(self.params.get('ref_ds', 0.0))
+        # Choose target spacing: user param or vmax*dt, with a small minimum
+        ds = ref_ds_param if ref_ds_param > 0.0 else vmax * dt
+        ds = max(ds, 0.05)
+        rospy.loginfo_throttle(1.0, f"Target spacing: {ds:.2f}m")
+        # Target arc-lengths for each horizon step
+        s_targets = (np.arange(N)+1) * ds
+
+        # Interpolate XY along s; heading from local segment direction
         ref = []
-        for pose_stamped in path.poses[:self.params['horizon']]:
-            # Extract state with zero velocities for reference trajectory
-            ref_state = self.extract_state(pose_stamped, None)
-            ref.append(ref_state._x)
-            
-        # Pad with final pose if needed
-        while len(ref) < self.params['horizon']:
-            if ref:
-                ref.append(ref[-1])
+        for st in s_targets:
+            if st >= s[-1]:
+                xi, yi = xs[-1], ys[-1]
+                # Heading: use last segment or keep previous if not available
+                if M >= 2:
+                    dxl = xs[-1] - xs[-2]
+                    dyl = ys[-1] - ys[-2]
+                    thi = np.arctan2(dyl, dxl) if (dxl != 0.0 or dyl != 0.0) else (ref[-1][2] if ref else current_state._x[2])
+                else:
+                    thi = ref[-1][2] if ref else current_state._x[2]
             else:
-                ref.append(current_state._x)
+                # Find segment index such that s[i] <= st < s[i+1]
+                i = np.searchsorted(s, st, side='right') - 1
+                i = max(0, min(i, M - 2))
+                seg_len = s[i+1] - s[i]
+                if seg_len <= 1e-6:
+                    alpha = 0.0
+                else:
+                    alpha = (st - s[i]) / seg_len
+                xi = xs[i] + alpha * (xs[i+1] - xs[i])
+                yi = ys[i] + alpha * (ys[i+1] - ys[i])
+                thi = np.arctan2(ys[i+1] - ys[i], xs[i+1] - xs[i])
+            ref.append(np.array([xi, yi, thi], dtype=float))
+
+        # Safety: pad in case of numerical issues
+        while len(ref) < N:
+            ref.append(ref[-1] if ref else current_state._x)
             
+        # Publish the truncated horizon path for RViz debugging
+        try:
+            dbg_path = Path()
+            # Use incoming path header if available; otherwise fall back to configured global frame
+            dbg_path.header = path.header
+            if not dbg_path.header.frame_id:
+                dbg_path.header.frame_id = self.params.get('global_frame', 'odom')
+            dbg_path.header.stamp = rospy.Time.now()
+
+            for xytheta in ref:
+                ps = PoseStamped()
+                ps.header = dbg_path.header
+                x, y, th = float(xytheta[0]), float(xytheta[1]), float(xytheta[2])
+                ps.pose.position.x = x
+                ps.pose.position.y = y
+                qx, qy, qz, qw = quaternion_from_euler(0.0, 0.0, th)
+                ps.pose.orientation.x = qx
+                ps.pose.orientation.y = qy
+                ps.pose.orientation.z = qz
+                ps.pose.orientation.w = qw
+                dbg_path.poses.append(ps)
+
+            self.ref_pub.publish(dbg_path)
+        except Exception as ex:
+            rospy.logwarn(f"[PSDFRosNode] Failed to publish debug ref path: {ex}")
+
         return np.array(ref)
         
     def create_response(self, v: float, omega: float, success: bool) -> PsdfMpcResponse:
@@ -372,10 +476,10 @@ def main():
     """Main entry point for PSDF-ROS node."""
     try:
         node = PSDFRosNode()
-        rospy.loginfo("PSDF-ROS node started, waiting for service requests...")
+        rospy.loginfo_throttle(1.0, "PSDF-ROS node started, waiting for service requests...")
         rospy.spin()
     except rospy.ROSInterruptException:
-        rospy.loginfo("PSDF-ROS node interrupted")
+        rospy.loginfo_throttle(1.0, "PSDF-ROS node interrupted")
     except Exception as e:
         rospy.logerr(f"PSDF-ROS node failed: {e}")
 

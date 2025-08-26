@@ -16,8 +16,8 @@ import yaml
 class PSDFOptimizerConfig:
     def __init__(self):
         self.horizon = 20
-        self.mat_Q = np.diag([50.0, 50.0, 1.0])  # Reduced from 100.0
-        self.mat_R = np.diag([0.2, 0.05])  # Reduced from 20.0
+        self.mat_Q = np.diag([1.0, 1.0, 0.1])  # Reduced from 100.0
+        self.mat_R = np.diag([0.2, 0.5])  # Reduced from 20.0
         
         self.terminal_weight = 1.0  # 10.0
         
@@ -33,7 +33,7 @@ class PSDFOptimizerConfig:
         
         # Input constraints
         self.vmin, self.vmax = -0.7, 0.7
-        self.omegamin, self.omegamax = -1.2, 1.2
+        self.omegamin, self.omegamax = -0.6, 0.6
         
         # Input derivative constraints
         self.amin, self.amax = -0.3, 0.3
@@ -140,7 +140,7 @@ class PSDFOptimizer:
 
     def set_state(self, state):
         self.state = state
-        print(f"set state: {self.state._x}, {self.state._u}")
+        rospy.loginfo_throttle(1, f"set state: {self.state._x}, {self.state._u}")
 
     def set_reference_trajectory(self, reference_trajectory):
         """Set the reference trajectory for the optimizer"""
@@ -428,6 +428,32 @@ class PSDFOptimizer:
                 # Fallback: rely on x0 set during setup if direct bounds are unsupported
                 print(f"Warning: failed to set stage-0 state bounds via solver: {e}")
 
+        # Log PSDF(signed distance) at the current state for debugging
+        # Prefer calling through ped_model; fall back to psdf_wrapper for numeric eval
+        try:
+            if self.state is not None and getattr(self, 'ped_model', None) is not None:
+                pose_np = np.array(self.state._x, dtype=np.float32)
+                sdf_val = None
+                # Try calling the real-time L4CasADi wrapper directly (may accept numpy)
+                try:
+                    res = self.ped_model(pose_np)
+                    # Convert various possible return types to float
+                    if torch.is_tensor(res):
+                        sdf_val = float(res.detach().cpu().reshape(-1)[0].item())
+                    else:
+                        sdf_val = float(np.asarray(res).reshape(-1)[0])
+                except Exception:
+                    # Fallback to direct Torch module evaluation
+                    if getattr(self, 'psdf_wrapper', None) is not None:
+                        pose_t = torch.tensor(pose_np, dtype=torch.float32, device=self.psdf_wrapper.device)
+                        out = self.psdf_wrapper(pose_t)  # (1,1)
+                        if torch.is_tensor(out):
+                            sdf_val = float(out.detach().cpu().reshape(-1)[0].item())
+                if sdf_val is not None:
+                    rospy.loginfo_throttle(1, "PSDF at current state: %.6f", sdf_val)
+        except Exception as e:
+            rospy.logwarn_throttle(1, "Failed to log PSDF value: %s", str(e))
+
         # ------------------------------------------------------------------
         # Update real-time Taylor parameters for each stage (batch evaluation)
         # ------------------------------------------------------------------
@@ -440,14 +466,13 @@ class PSDFOptimizer:
                 self.solver.set(i, "p", params_batch[i])
             self.solver.set(self.N, "p", params_batch[-1])
 
-        
         status = self.solver.solve()
         end = time.time()
         solve_time = end - start
         
         # Record solver time
         self.solver_times.append(solve_time)
-        print("solver time: ", solve_time)
+        rospy.loginfo_throttle(1, "solver time: %.3fs", solve_time)
         
         if status != 0:
             print(f"Acados solver failed with status {status}")
@@ -464,33 +489,27 @@ class PSDFOptimizer:
             reference_trajectory: Reference trajectory for MPC
             
         Returns:
-            tuple: (success, u_opt, info) where:
+            tuple: (success, u_opt, x_traj, info) where:
                 success: bool indicating if solve was successful
                 u_opt: optimal control inputs [v, omega]
+                x_traj: optimized state trajectory with shape (nx, N+1)
                 info: additional solver information
         """
         try:
-            rospy.loginfo(f"[MPC_OPTIMIZER] Starting solve with state: {state}")
-            rospy.loginfo(f"[MPC_OPTIMIZER] Reference trajectory shape: {reference_trajectory.shape if hasattr(reference_trajectory, 'shape') else len(reference_trajectory)}")
-            
             # Set current state
             self.set_state(state)
-            rospy.loginfo("[MPC_OPTIMIZER] State set successfully")
             
             # Set reference trajectory
             self.set_reference_trajectory(reference_trajectory)
-            rospy.loginfo("[MPC_OPTIMIZER] Reference trajectory set successfully")
             
             # Solve the optimization problem
-            rospy.loginfo("[MPC_OPTIMIZER] Calling solve_nlp...")
             solution = self.solve_nlp()
-            rospy.loginfo("[MPC_OPTIMIZER] solve_nlp completed")
             
-            # Extract optimal control inputs
+            # Extract trajectories
+            x_traj = solution.get_state_trajectory()
             u_traj = solution.get_input_trajectory()
-            rospy.loginfo(f"[MPC_OPTIMIZER] Input trajectory extracted: shape={u_traj.shape if u_traj is not None else None}")
             
-            if u_traj is not None and len(u_traj) > 0:
+            if u_traj is not None and u_traj.size > 0:
                 # Return first control input
                 v_opt = float(u_traj[0, 0])
                 omega_opt = float(u_traj[1, 0])
@@ -505,17 +524,16 @@ class PSDFOptimizer:
                     'status': stats.get('return_status', 'unknown')
                 }
                 
-                rospy.loginfo(f"[MPC_OPTIMIZER] Solve successful: v={v_opt}, omega={omega_opt}")
-                return success, u_opt, info
+                return success, u_opt, x_traj, info
             else:
                 rospy.logwarn("[MPC_OPTIMIZER] Solve failed: No solution found")
-                return False, [0.0, 0.0], {'error': 'No solution found'}
+                return False, [0.0, 0.0], None, {'error': 'No solution found'}
                 
         except Exception as e:
             rospy.logerr(f"[MPC_OPTIMIZER] Exception in solve: {str(e)}")
             import traceback
             traceback.print_exc()
-            return False, [0.0, 0.0], {'error': str(e)}
+            return False, [0.0, 0.0], None, {'error': str(e)}
 
 
     def initialize_ped_model(self, system, obstacles, E_max=100, K_max = 20, device="cpu"):

@@ -486,7 +486,6 @@ class PSDFOptimizer:
         
         # Record solver time
         self.solver_times.append(solve_time)
-        print("solver time: ", solve_time)
         
         if status != 0:
             print(f"Acados solver failed with status {status}")

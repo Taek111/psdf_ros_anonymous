@@ -30,6 +30,7 @@ private:
   
   // Member variables
   bool initialized_;
+  bool service_availiable_;
   bool goal_reached_;
   std::string name_;
   

@@ -1,6 +1,6 @@
 # Convex polygon footprint (meters) in base_link frame
-robot_footprint:
-  - [0.20, 0.15]
-  - [0.20, -0.15]
-  - [-0.20, -0.15]
-  - [-0.20, 0.15]
+footprint:
+  - [-0.30, -0.25]
+  - [0.30, -0.25]
+  - [0.30, 0.25]
+  - [-0.30, 0.25]

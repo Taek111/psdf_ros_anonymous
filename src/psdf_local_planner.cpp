@@ -9,7 +9,7 @@
 
 namespace psdf_ros {
 
-PSDFLocalPlanner::PSDFLocalPlanner() : initialized_(false), goal_reached_(false) {
+PSDFLocalPlanner::PSDFLocalPlanner() : initialized_(false), goal_reached_(false), service_availiable_(false) {
   service_name_ = "/psdf_mpc";
   odom_topic_ = "/odom";
   goal_tolerance_xy_ = 0.2;
@@ -40,10 +40,11 @@ void PSDFLocalPlanner::initialize(std::string name, tf2_ros::Buffer* tf, costmap
   odom_sub_ = nh_.subscribe<nav_msgs::Odometry>(odom_topic_, 10, &PSDFLocalPlanner::odomCallback, this);
   
   // Wait for service (use WallDuration to avoid sim-time stalls)
-  if (!ros::service::waitForService(service_name_, ros::WallDuration(service_timeout_))) {
+  if (!ros::service::waitForService(service_name_, 0.2)) {
     ROS_WARN_STREAM("PSDFLocalPlanner: service " << service_name_ << " not available yet.");
   } else {
     ROS_INFO_STREAM("PSDFLocalPlanner: connected to service " << service_name_);
+    service_availiable_ = true;
   }
   
   initialized_ = true;
@@ -77,16 +78,19 @@ bool PSDFLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
   }
   
   // Ensure service is available; re-check using wall time to handle late startup
-  if (!mpc_client_.exists()) {
+  if (!service_availiable_) {
     // Try to (re)discover service without blocking move_base
-    if (!ros::service::waitForService(service_name_, ros::WallDuration(0.1))) {
-      ROS_WARN_THROTTLE(1.0, "PSDFLocalPlanner: waiting for service %s", service_name_.c_str());
+    if (!ros::service::waitForService(service_name_, 0.05)) {
+      ROS_WARN_THROTTLE(1.0, "PSDFLocalPlanner: service %s unavailable; holding position", service_name_.c_str());
+      // Degrade gracefully: publish zero command but report success to avoid controller aborts
       cmd_vel = geometry_msgs::Twist();
-      return false;
+      return true;
     }
     // Recreate client to force a fresh connection
     mpc_client_.shutdown();
     mpc_client_ = nh_.serviceClient<psdf_ros::PsdfMpc>(service_name_, /*persistent=*/true);
+    service_availiable_ = true; 
+    ROS_INFO_THROTTLE(1.0, "PSDFLocalPlanner: service %s available", service_name_.c_str());
   }
   
   if (global_plan_.empty()) {
@@ -157,9 +161,10 @@ bool PSDFLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
                        cmd_vel.linear.x, cmd_vel.angular.z);
     return true;
   } else {
-    ROS_INFO_THROTTLE(1.0, "PSDFLocalPlanner: MPC service call failed or returned failure");
+    ROS_WARN_THROTTLE(1.0, "PSDFLocalPlanner: MPC service call failed or returned failure; holding position");
+    // Degrade gracefully: hold position until service becomes available/healthy
     cmd_vel = geometry_msgs::Twist();
-    return false;
+    return true;
   }
 }
 
