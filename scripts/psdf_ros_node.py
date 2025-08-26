@@ -428,6 +428,22 @@ class PSDFRosNode:
                 thi = np.arctan2(ys[i+1] - ys[i], xs[i+1] - xs[i])
             ref.append(np.array([xi, yi, thi], dtype=float))
 
+        # 1) Unwrap theta sequence to remove +/-pi discontinuities
+        try:
+            if ref:
+                ths = np.array([p[2] for p in ref], dtype=float)
+                ths_unwrapped = np.unwrap(ths)
+                # 2) Normalize branch so the first angle is closest to current yaw
+                theta_curr = float(current_state._x[2])
+                two_pi = 2.0 * np.pi
+                k = int(np.round((theta_curr - ths_unwrapped[0]) / two_pi))
+                ths_aligned = ths_unwrapped + k * two_pi
+                # Write back
+                for idx in range(len(ref)):
+                    ref[idx][2] = float(ths_aligned[idx])
+        except Exception as ex:
+            rospy.logwarn_throttle(1.0, f"[PSDFRosNode] theta unwrap/align failed: {ex}")
+
         # Safety: pad in case of numerical issues
         while len(ref) < N:
             ref.append(ref[-1] if ref else current_state._x)

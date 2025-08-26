@@ -257,7 +257,7 @@ class PSDFOptimizer:
         self.ocp.solver_options.nlp_solver_max_iter = param.nlp_solver_max_iter
         self.ocp.solver_options.tol = param.tol
         # Set warm start options
-        self.ocp.solver_options.qp_solver_warm_start = True  
+        self.ocp.solver_options.qp_solver_warm_start = 2  
         self.ocp.solver_options.nlp_solver_warm_start_first_qp = True  
         # Set prediction horizon
         self.ocp.solver_options.tf = param.tf

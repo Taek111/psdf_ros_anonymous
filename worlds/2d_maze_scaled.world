@@ -68,8 +68,8 @@
     <!-- Physics -->
     <physics type='ode'>
       <max_step_size>0.01</max_step_size>
-      <real_time_factor>1</real_time_factor>
-      <real_time_ _rate>200</real_time_update_rate>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>120</real_time_update_rate>
       <gravity>0 0 -9.8</gravity>
     </physics>
     <model name='turtlebot3_plaza'>
