@@ -11,6 +11,7 @@ import time
 import traceback
 import sys
 import os
+import csv
 from typing import Optional, List
 import numpy as np
 import torch
@@ -54,6 +55,7 @@ class PSDFRosNode:
         self.solve_times = []
         self.failure_count = 0
         self.success_count = 0
+        self.success_timestamps = []
         
         # TF buffer/listener for frame transforms
         self.tf_buffer = tf2_ros.Buffer()
@@ -68,6 +70,10 @@ class PSDFRosNode:
         # Publisher: optimized solution trajectory path
         self.sol_path_pub = rospy.Publisher('psdf_solution_path', Path, queue_size=1, latch=True)
         self.service = rospy.Service('/psdf_mpc', PsdfMpc, self.handle_service)
+        # Path to save successful solve times as CSV
+        self.solve_times_csv_path = rospy.get_param('~solve_times_csv', os.path.join(os.path.expanduser('~/.ros'), 'psdf_solve_times.csv'))
+        # Register shutdown hook to persist CSV and print average
+        rospy.on_shutdown(self._on_shutdown_save_times)
         
         rospy.loginfo_throttle(1.0, f"PSDFRosNode ready – horizon={self.params['horizon']}, dt={self.params['dt']}")
         rospy.loginfo_throttle(1.0, f"Listening for line segments on: {self.params['line_segment_topic']} (target frame={self.params['global_frame']})")
@@ -301,8 +307,23 @@ class PSDFRosNode:
             
             # Log performance
             solve_time = time.time() - start_time
-            self.solve_times.append(solve_time)
-            if not success:
+            if success:
+                # Track only successful solve times and persist CSV each success
+                self.solve_times.append(solve_time)
+                try:
+                    self.success_count += 1
+                except Exception:
+                    pass
+                # 기록: 성공 시각 (ROS Time)
+                try:
+                    self.success_timestamps.append(rospy.Time.now())
+                except Exception:
+                    pass
+                try:
+                    self.save_solve_times_csv()
+                except Exception as ex:
+                    rospy.logwarn(f"[PSDFRosNode] Failed to save solve_times CSV: {ex}")
+            else:
                 rospy.logwarn(f"[PSDF_SERVICE] Solve failed in {solve_time:.3f}s")
             
             rospy.loginfo_throttle(1.0, f"PSDF-MPC solved in {solve_time:.3f}s: v={v:.3f}, ω={omega:.3f}")
@@ -486,6 +507,43 @@ class PSDFRosNode:
         resp.cmd_vel.twist.angular.z = float(omega)
         resp.success = success
         return resp
+
+    def save_solve_times_csv(self):
+        """Save successful solve times to CSV at configured path."""
+        try:
+            csv_path = self.solve_times_csv_path
+            os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+            with open(csv_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['solve_time'])
+                for t in self.solve_times:
+                    writer.writerow([f"{float(t):.6f}"])
+        except Exception as ex:
+            rospy.logwarn(f"[PSDFRosNode] save_solve_times_csv failed: {ex}")
+
+    def _on_shutdown_save_times(self):
+        """On node shutdown, save CSV and log average solver time."""
+        try:
+            self.save_solve_times_csv()
+            if self.solve_times:
+                avg = float(sum(self.solve_times) / len(self.solve_times))
+                rospy.loginfo(f"Average solver time over {len(self.solve_times)} successes: {avg:.6f}s")
+                # 첫 success ~ 마지막 success 시간차 및 총 구간 시간 출력
+                try:
+                    if len(self.success_timestamps) >= 1:
+                        start_ts = self.success_timestamps[0].to_sec()
+                        end_ts = self.success_timestamps[-1].to_sec()
+                        interval = float(max(0.0, end_ts - start_ts))
+                        total_segment_time = float(sum(self.solve_times))
+                        rospy.loginfo(f"첫 성공부터 마지막 성공까지의 시간차(벽시계): {interval:.3f}s")
+                        rospy.loginfo(f"총 구간 시간(성공 solve 시간 합): {total_segment_time:.3f}s")
+                except Exception as _ex:
+                    rospy.logwarn(f"[PSDFRosNode] Interval/segment time logging failed: {_ex}")
+            
+            else:
+                rospy.loginfo("No successful solve times recorded.")
+        except Exception as ex:
+            rospy.logwarn(f"[PSDFRosNode] Shutdown save/log failed: {ex}")
 
 
 def main():

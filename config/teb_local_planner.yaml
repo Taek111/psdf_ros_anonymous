@@ -1,0 +1,44 @@
+TebLocalPlannerROS:
+
+  odom_topic: /odom
+  map_frame: map
+
+  # 로봇 제한(차등구동 예시)
+  max_vel_x: 0.7
+  max_vel_x_backwards: -0.5
+  max_vel_theta: 2.0
+  acc_lim_x: 1.5
+  acc_lim_theta: 1.5
+
+  # 궤적 시간 해상도
+  dt_ref: 0.15
+  dt_hysteresis: 0.1
+  global_plan_overwrite_orientation: true
+  max_global_plan_lookahead_dist: 3.0
+
+  # 목표 허용오차
+  xy_goal_tolerance: 0.15
+  yaw_goal_tolerance: 0.10
+  free_goal_vel: false
+
+  # 장애물 회피
+  min_obstacle_dist: 0.01     # 코스트맵 inflation과 합쳐 실제 간격 결정
+  include_costmap_obstacles: true
+  costmap_obstacles_behind_robot_dist: 1.0
+  obstacle_poses_affected: 15
+
+  # 최적화 가중치(필요시 조정)
+  weight_kinematics_nh: 1000.0
+  weight_optimaltime: 1.0
+  weight_obstacle: 50.0
+  weight_viapoint: 1.0
+
+  # 풋프린트 모델 (TEB 내부 충돌체크)
+  footprint_model:
+    type: "polygon"               # point, circle, line, two_circles, polygon
+    vertices: [[0.15, 0.24], [0.15, -0.24], [-0.15, -0.24], [-0.15, 0.24]]
+    # is_footprint_dynamic: false  # 필요시 동적 업데이트
+
+  # 좁은 통로에서 전역경로 따르기 강화(옵션)
+  # via_points_ordered: true
+  # global_plan_viapoint_sep: 0.5

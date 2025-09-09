@@ -86,6 +86,7 @@ class PSDFOptimizer:
         self.dynamics_opt = dynamics_opt
         self.psdf_wrapper = None  # PSDFWrapper instance
         self._is_initialized = False
+        self._has_prev_solution = False
         
         # Local window obstacle detector
         self.obstacle_detector = None
@@ -456,10 +457,33 @@ class PSDFOptimizer:
 
         # ------------------------------------------------------------------
         # Update real-time Taylor parameters for each stage (batch evaluation)
+        # Use a guess trajectory anchored at the CURRENT STATE (and reference)
+        # so that the PSDF constraint is linearized around a sensible point,
+        # not around the default zero-state when x,y != 0.
         # ------------------------------------------------------------------
         if self.ped_model is not None:
-            # Gather current guessed states (warm start or previous solution)
-            x_guess = np.stack([self.solver.get(i, "x") for i in range(self.N + 1)], axis=0)
+            try:
+                N = int(self.N)
+                nx = int(self.nx)
+                if getattr(self, "_has_prev_solution", False):
+                    # Use previous solution as x_guess
+                    x_guess = np.stack([self.solver.get(i, "x") for i in range(N + 1)], axis=0)
+                else:
+                    # Fall back to current state + reference trajectory
+                    if self.reference_trajectory is not None and getattr(self.reference_trajectory, "shape", (0, 0))[0] >= N:
+                        x_guess = np.zeros((N + 1, nx), dtype=float)
+                        x_guess[0, :] = np.array(self.state._x, dtype=float)
+                        x_guess[1:, :] = np.array(self.reference_trajectory[:N, :], dtype=float)
+                    else:
+                        x_guess = np.tile(np.array(self.state._x, dtype=float), (N + 1, 1))
+                    # Synchronize solver state guesses for consistency with p
+                    for i in range(N):
+                        self.solver.set(i, "x", x_guess[i])
+                    self.solver.set(N, "x", x_guess[N])
+            except Exception as _:
+                # If setting initial guesses fails, fall back to internal guesses
+                x_guess = np.stack([self.solver.get(i, "x") for i in range(self.N + 1)], axis=0)
+
             params_batch = self.ped_model.get_params(x_guess)  # (N+1, np)
             # Set parameters for each stage
             for i in range(self.N):
@@ -476,7 +500,9 @@ class PSDFOptimizer:
         
         if status != 0:
             print(f"Acados solver failed with status {status}")
-            
+        # mark whether we have a valid previous solution for next call
+        self._has_prev_solution = (int(status) == 0)
+        
         
         return AcadosSolution(self.solver, self.N, self.variables, status)
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- Scout Mini PSDF-MPC Integration Test Launch File -->
-    <!-- This launch file combines Scout Mini Gazebo simulation with PSDF-MPC local planner -->
+    <!-- Scout Mini TEB Local Planner Integration Test Launch File -->
+    <!-- This launch file runs move_base with teb_local_planner for local planning -->
     
     <!-- Arguments -->
     <arg name="robot_namespace" default="/"/>
@@ -9,23 +9,15 @@
     <arg name="config_dir" default="$(find psdf_ros)/config" />
     <arg name="use_rviz" default="true" />
     <arg name="use_move_base" default="true" />
-    <arg name="x" default="15.0"/>
+    <arg name="x" default="0.0"/>
     <arg name="y" default="0.0"/>
     <arg name="z" default="0.0"/>
     <arg name="yaw" default="0.0"/>
-  
-    <!-- 1. PSDF-ROS Service Node -->
-    <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
-      <!-- Load planner params into node private namespace (~) -->
-      <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
-      <!-- robot_footprint path is used by node to read actual YAML -->
-      <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml" />
-    </node>
 
-    <!-- 2. Load PSDF-MPC parameters for psdf_ros_node (private namespace) -->
+    <!-- Load robot footprint params (used by costmaps) -->
     <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
-    
-    <!-- 3. Navigation stack with PSDF local planner -->
+
+    <!-- Navigation stack with TEB local planner -->
     <group if="$(arg use_move_base)">
         <!-- Map server (if using a static map)-->
         <node name="map_server" pkg="map_server" type="map_server" 
@@ -49,34 +41,41 @@
             <param name="recovery_alpha_fast" value="0.0"/>
         </node>
         
-        <!-- Move base with PSDF local planner -->
+        <!-- Move base with TEB local planner -->
         <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
-            <!-- Use PSDF local planner -->
-            <param name="base_local_planner" value="psdf_local_planner/PSDFLocalPlanner" />
-            
+            <!-- Use TEB local planner -->
+            <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+
             <!-- Global planner -->
             <param name="base_global_planner" value="navfn/NavfnROS" />
             
             <!-- Basic move_base parameters -->
             <rosparam file="$(find psdf_ros)/config/move_base_params.yaml" command="load" />
             
+            <!-- Remap cmd_vel to cmd_vel_fake -->
+            <remap from="cmd_vel" to="/cmd_vel_fake" />
+
             <!-- Costmap parameters -->
             <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
             <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
             <rosparam file="$(find psdf_ros)/config/local_costmap_params.yaml" command="load" />
             <rosparam file="$(find psdf_ros)/config/global_costmap_params.yaml" command="load" />
+
+            <!-- TEB local planner parameters -->
+            <rosparam file="$(find psdf_ros)/config/teb_local_planner.yaml" command="load" />
             
             <!-- Robot footprint for costmaps -->
             <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml"/>
         </node>
     </group>
     
-    <!-- 6. Visualization -->
+    <!-- Visualization (optional) -->
     <!-- <group if="$(arg use_rviz)">
         <node name="rviz" pkg="rviz" type="rviz" 
               args="-d $(find psdf_ros)/rviz/psdf_navigation.rviz" 
               output="screen" />
     </group> -->
 
-   
 </launch>
+
+
