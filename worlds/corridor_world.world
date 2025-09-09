@@ -268,326 +268,674 @@
         <kinematic>0</kinematic>
       </link>
     </model>
+    <model name='tri_1'>
+      <static>1</static>
+      <pose>17.452 -2.111 0 0 -0 0.18</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='pent_1'>
+      <static>1</static>
+      <pose>20.562 -2.171 0 0 -0 0.53</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_1'>
+      <static>1</static>
+      <pose>20.669 -0.369 0 0 -0 0.88</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='tri_2'>
+      <static>1</static>
+      <pose>22.778 0.011 0 0 -0 1.23</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='pent_2'>
+      <static>1</static>
+      <pose>17.821 -0.290 0 0 -0 0.36</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.6 0.6 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.6 0.6 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_2'>
+      <static>1</static>
+      <pose>19.171 -1.446 0 0 -0 0.71</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='tri_3'>
+      <static>1</static>
+      <pose>22.297 -2.250 0 0 -0 1.06</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='pent_3'>
+      <static>1</static>
+      <pose>24.221 -1.764 0 0 -0 1.41</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_3'>
+      <static>1</static>
+      <pose>25.350 0.141 0 0 -0 1.76</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.45 0.45 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.45 0.45 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_4'>
+      <static>1</static>
+      <pose>16.806 1.248 0 0 -0 0.54</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.6 0.45 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='tri_4'>
+      <static>1</static>
+      <pose>19.456 0.786 0 0 -0 0.89</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.9 0.9 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='pent_4'>
+      <static>1</static>
+      <pose>21.871 1.119 0 0 -0 1.24</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.6 0.6 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.6 0.6 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_5'>
+      <static>1</static>
+      <pose>24.573 1.111 0 0 -0 1.59</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.45 0.55 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.45 0.55 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='tri_5'>
+      <static>1</static>
+      <pose>18.073 2.369 0 0 -0 0.72</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <scale>0.7 0.7 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='pent_5'>
+      <static>1</static>
+      <pose>20.335 2.166 0 0 -0 1.07</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <mesh>
+              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <scale>0.85 0.85 1</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='box_6'>
+      <static>1</static>
+      <pose>22.2 2.450 0 0 -0 1.42</pose>
+      <link name='link'>
+        <collision name='c'>
+          <geometry>
+            <box>
+              <size>0.45 0.45 0.5</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='v'>
+          <geometry>
+            <box>
+              <size>0.45 0.45 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02745 0.41176 0.94118 1</ambient>
+            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
     <model name='tri_6'>
       <static>1</static>
-<<<<<<< HEAD
-      <pose>18.45 -1.15 -0.001 0 -0 0.18</pose>
-=======
-      <pose>18.45 -1.15 0.25 0 -0 0.18</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
+      <pose>24.177 2.366 0 0 -0 1.77</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
               <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='pent_7'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>20.25 -1.25 -0.001 0 -0 0.53</pose>
-=======
-      <pose>20.25 -1.25 0.25 0 -0 0.53</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_8'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>22.05 -1.15 0.249 0 -0 0.88</pose>
-=======
-      <pose>22.05 -1.15 0.25 0 -0 0.88</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='tri_9'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>23.85 -1.25 -0.001 0 -0 1.23</pose>
-=======
-      <pose>23.85 -1.25 0.25 0 -0 1.23</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='pent_12'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>18.6 0.05 -0.001 0 -0 0.36</pose>
-=======
-      <pose>18.6 0.05 0.25 0 -0 0.36</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.6 0.6 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.6 0.6 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_13'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>20.4 -0.05 0.249 0 -0 0.71</pose>
-=======
-      <pose>20.4 -0.05 0.25 0 -0 0.71</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='tri_14'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>22.2 0.05 -0.001 0 -0 1.06</pose>
-=======
-      <pose>22.2 0.05 0.25 0 -0 1.06</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -608,511 +956,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
               <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.7 0.7 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='pent_15'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>24 -0.05 -0.001 0 -0 1.41</pose>
-=======
-      <pose>24 -0.05 0.25 0 -0 1.41</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_16'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>25.8 0.05 0.249 0 -0 1.76</pose>
-=======
-      <pose>25.8 0.05 0.25 0 -0 1.76</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.45 0.45 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.45 0.45 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_18'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>18.45 1.25 0.249 0 -0 0.54</pose>
-=======
-      <pose>18.45 1.25 0.25 0 -0 0.54</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.6 0.45 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='tri_19'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>20.25 1.15 -0.001 0 -0 0.89</pose>
-=======
-      <pose>20.25 1.15 0.25 0 -0 0.89</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.9 0.9 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='pent_20'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>22.05 1.25 -0.001 0 -0 1.24</pose>
-=======
-      <pose>22.05 1.25 0.25 0 -0 1.24</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.6 0.6 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.6 0.6 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_21'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>23.85 1.15 0.249 0 -0 1.59</pose>
-=======
-      <pose>23.85 1.15 0.25 0 -0 1.59</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.45 0.55 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.45 0.55 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='tri_24'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>18.6 2.45 -0.001 0 -0 0.72</pose>
-=======
-      <pose>18.6 2.45 0.25 0 -0 0.72</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.7 0.7 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.7 0.7 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='pent_25'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>20.4 2.35 -0.001 0 -0 1.07</pose>
-=======
-      <pose>20.4 2.35 0.25 0 -0 1.07</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.85 0.85 1</scale>
-            </mesh>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='box_26'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>22.2 2.45 0.249 0 -0 1.42</pose>
-=======
-      <pose>22.2 2.45 0.25 0 -0 1.42</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <box>
-              <size>0.45 0.45 0.5</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <box>
-              <size>0.45 0.45 0.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02745 0.41176 0.94118 1</ambient>
-            <diffuse>0.02745 0.41176 0.94118 1</diffuse>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
-    <model name='tri_27'>
-      <static>1</static>
-<<<<<<< HEAD
-      <pose>24 2.35 -0.001 0 -0 1.77</pose>
-=======
-      <pose>24 2.35 0.25 0 -0 1.77</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <link name='link'>
-        <collision name='c'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-              <scale>0.7 0.7 1</scale>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='v'>
-          <geometry>
-            <mesh>
-<<<<<<< HEAD
-              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
-=======
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -1131,12 +975,8 @@
     <atmosphere type='adiabatic'/>
     <physics type='ode'>
       <max_step_size>0.01</max_step_size>
-<<<<<<< HEAD
-      <real_time_update_rate>20</real_time_update_rate>
-=======
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>120</real_time_update_rate>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
     </physics>
     <wind/>
     <spherical_coordinates>
@@ -1148,416 +988,10 @@
     </spherical_coordinates>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-<<<<<<< HEAD
-        <pose>21.3379 -0.0514 11.3576 -2.2e-05 1.5698 1.51121</pose>
-=======
         <pose>20.4611 -2.47609 21.7664 0 1.39397 1.47523</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <state world_name='corridor_poly_dense'>
-<<<<<<< HEAD
-      <sim_time>68 770000000</sim_time>
-      <real_time>59 128740999</real_time>
-      <wall_time>1756814021 224883664</wall_time>
-      <iterations>6877</iterations>
-=======
-      <sim_time>305 0</sim_time>
-      <real_time>177 383073140</real_time>
-      <wall_time>1756729103 176039633</wall_time>
-      <iterations>21245</iterations>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <model name='bottom_wall'>
-        <pose>15 -3 0.25 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>15 -3 0.25 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_13'>
-<<<<<<< HEAD
-        <pose>20.9517 -1.17431 0.249 0 -0 0.71</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.9517 -1.17431 0.249 0 -0 0.71</pose>
-=======
-        <pose>19.8515 -1.00351 1.7373 0 -0 0.71</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>19.8515 -1.00351 1.7373 0 -0 0.71</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_16'>
-<<<<<<< HEAD
-        <pose>25.8 0.05 0.249 0 -0 1.76</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>25.8 0.05 0.249 0 -0 1.76</pose>
-=======
-        <pose>24.984 0.124064 0.25 0 -0 1.76</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>24.984 0.124064 0.25 0 -0 1.76</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_18'>
-<<<<<<< HEAD
-        <pose>18.45 1.25 0.249 0 -0 0.54</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.45 1.25 0.249 0 -0 0.54</pose>
-=======
-        <pose>19.0255 1.38729 0.25 0 -0 0.54</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>19.0255 1.38729 0.25 0 -0 0.54</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_21'>
-<<<<<<< HEAD
-        <pose>24.7151 1.04109 0.249 0 -0 1.59</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>24.7151 1.04109 0.249 0 -0 1.59</pose>
-=======
-        <pose>23.5231 0.878809 0.25 0 -0 1.59</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>23.5231 0.878809 0.25 0 -0 1.59</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_26'>
-<<<<<<< HEAD
-        <pose>22.5137 2.49221 0.249 0 -0 1.42</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.5137 2.49221 0.249 0 -0 1.42</pose>
-=======
-        <pose>22.7878 2.57093 0.25 0 -0 1.42</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.7878 2.57093 0.25 0 -0 1.42</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='box_8'>
-<<<<<<< HEAD
-        <pose>22.5899 -1.86322 0.249 0 -0 0.88</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.5899 -1.86322 0.249 0 -0 0.88</pose>
-=======
-        <pose>22.3389 -2.33664 0.25 0 -0 0.88</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.3389 -2.33664 0.25 0 -0 0.88</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='ground'>
-        <pose>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pent_12'>
-<<<<<<< HEAD
-        <pose>18.62 -0.552068 -0.001 0 -0 0.36</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.62 -0.552068 -0.001 0 -0 0.36</pose>
-=======
-        <pose>18.2918 -0.040674 0.25 0 -0 0.36</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.2918 -0.040674 0.25 0 -0 0.36</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pent_15'>
-<<<<<<< HEAD
-        <pose>23.5477 -0.574908 -0.001 0 -0 1.41</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>23.5477 -0.574908 -0.001 0 -0 1.41</pose>
-=======
-        <pose>23.3449 -0.609612 0.25 0 -0 1.41</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>23.3449 -0.609612 0.25 0 -0 1.41</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pent_20'>
-<<<<<<< HEAD
-        <pose>22.6799 1.3599 -0.001 0 -0 1.24</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.6799 1.3599 -0.001 0 -0 1.24</pose>
-=======
-        <pose>22.1574 1.47409 0.25 0 -0 1.24</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.1574 1.47409 0.25 0 -0 1.24</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pent_25'>
-<<<<<<< HEAD
-        <pose>20.5724 2.06895 -0.001 0 -0 1.07</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.5724 2.06895 -0.001 0 -0 1.07</pose>
-=======
-        <pose>20.7456 2.33284 0.25 0 -0 1.07</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.7456 2.33284 0.25 0 -0 1.07</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pent_7'>
-<<<<<<< HEAD
-        <pose>20.2305 -2.08419 -0.001 0 -0 0.53</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.2305 -2.08419 -0.001 0 -0 0.53</pose>
-=======
-        <pose>20.6277 -2.08484 0.25 0 -0 0.53</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.6277 -2.08484 0.25 0 -0 0.53</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pillar_c1_top'>
-        <pose>6 0.5 0.25 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>6 0.5 0.25 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pillar_c2_bottom'>
-        <pose>12 -1.625 0.25 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>12 -1.625 0.25 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='pillar_c2_top'>
-        <pose>12 1.625 0.25 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>12 1.625 0.25 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-<<<<<<< HEAD
-      <model name='scout'>
-        <pose>8.1e-05 0.000309 0.179854 0.000543 -0.001196 0.008289</pose>
-        <scale>1 1 1</scale>
-        <link name='base_link'>
-          <pose>8.1e-05 0.000309 0.179854 0.000543 -0.001196 0.008289</pose>
-          <velocity>-0.010844 0.01265 -0.071972 -0.147358 -0.12846 0.022002</velocity>
-          <acceleration>-1.34238 2.00347 -7.34324 2.90644 0.187115 1.273</acceleration>
-          <wrench>-20.4042 30.4527 -111.617 0 -0 0</wrench>
-        </link>
-        <link name='front_left_wheel_link'>
-          <pose>0.230409 0.210466 0.079274 -1.57123 0.421051 0.009036</pose>
-          <velocity>-0.001815 0.004654 -0.074033 -0.104045 -0.128023 -0.001108</velocity>
-          <acceleration>-0.136563 0.487276 -7.86025 -1.38741 -1.21042 -0.561539</acceleration>
-          <wrench>-0.409688 1.46183 -23.5807 0 -0 0</wrench>
-        </link>
-        <link name='front_right_wheel_link'>
-          <pose>0.233892 -0.205856 0.080055 1.57326 0.574459 0.008868</pose>
-          <velocity>0.002508 0.005055 -0.011682 -0.064872 -0.049409 -0.08669</velocity>
-          <acceleration>0.140459 0.647316 -1.0787 1.20943 0.491507 -1.63494</acceleration>
-          <wrench>0.421377 1.94195 -3.23611 0 -0 0</wrench>
-        </link>
-        <link name='rear_left_wheel_link'>
-          <pose>-0.233471 0.206619 0.078683 -1.57121 -0.450958 0.008337</pose>
-          <velocity>-0.002874 -0.006017 -0.132729 -0.105419 -0.129098 0.026128</velocity>
-          <acceleration>-0.141492 -0.243311 -13.583 -2.51402 -1.52375 1.36397</acceleration>
-          <wrench>-0.424475 -0.729933 -40.7489 0 -0 0</wrench>
-        </link>
-        <link name='rear_right_wheel_link'>
-          <pose>-0.229991 -0.209774 0.079387 1.57028 -0.498951 0.008678</pose>
-          <velocity>0.005641 -0.008283 -0.06882 -0.14239 -0.128899 0.019226</velocity>
-          <acceleration>0.469886 -0.22972 -6.9215 -0.401415 -0.897819 -1.0935</acceleration>
-          <wrench>1.40966 -0.689161 -20.7645 0 -0 0</wrench>
-        </link>
-      </model>
-=======
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-      <model name='top_wall'>
-        <pose>15 3 0.25 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>15 3 0.25 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_14'>
-<<<<<<< HEAD
-        <pose>22.0267 0.306667 -0.001 0 -0 1.06</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>22.0267 0.306667 -0.001 0 -0 1.06</pose>
-=======
-        <pose>21.5459 -0.419423 0.25 0 -0 1.06</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>21.5459 -0.419423 0.25 0 -0 1.06</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_19'>
-<<<<<<< HEAD
-        <pose>20.1874 0.466821 -0.001 0 -0 0.89</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.1874 0.466821 -0.001 0 -0 0.89</pose>
-=======
-        <pose>20.5331 0.821306 0.25 0 -0 0.89</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>20.5331 0.821306 0.25 0 -0 0.89</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_24'>
-<<<<<<< HEAD
-        <pose>18.6 2.45 -0.001 0 -0 0.72</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.6 2.45 -0.001 0 -0 0.72</pose>
-=======
-        <pose>18.6 2.45 0.25 0 -0 0.72</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.6 2.45 0.25 0 -0 0.72</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_27'>
-<<<<<<< HEAD
-        <pose>24 2.35 -0.001 0 -0 1.77</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>24 2.35 -0.001 0 -0 1.77</pose>
-=======
-        <pose>24.8721 1.47918 0.25 0 -0 1.77</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>24.8721 1.47918 0.25 0 -0 1.77</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_6'>
-<<<<<<< HEAD
-        <pose>18.2544 -2.2606 -0.001 0 -0 0.18</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.2544 -2.2606 -0.001 0 -0 0.18</pose>
-=======
-        <pose>18.7837 -2.08057 0.25 0 -0 0.18</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>18.7837 -2.08057 0.25 0 -0 0.18</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='tri_9'>
-<<<<<<< HEAD
-        <pose>24.3805 -2.13218 -0.001 0 -0 1.23</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>24.3805 -2.13218 -0.001 0 -0 1.23</pose>
-=======
-        <pose>23.8288 -1.96156 0.25 0 -0 1.23</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>23.8288 -1.96156 0.25 0 -0 1.23</pose>
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <light name='sun'>
-        <pose>0 0 10 0 -0 0</pose>
-      </light>
-    </state>
   </world>
 </sdf>

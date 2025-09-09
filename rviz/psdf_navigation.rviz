@@ -10,11 +10,7 @@ Panels:
         - /TF1
         - /Path3
       Splitter Ratio: 0.27037516236305237
-<<<<<<< HEAD
-    Tree Height: 666
-=======
     Tree Height: 639
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -434,11 +430,7 @@ Visualization Manager:
       Marker Topic: /rda_obs_markers
       Name: MarkerArray
       Namespaces:
-<<<<<<< HEAD
-        {}
-=======
         "": true
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
       Queue Size: 100
       Value: true
   Enabled: true
@@ -469,11 +461,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-<<<<<<< HEAD
-      Distance: 38.955955505371094
-=======
       Distance: 28.13319969177246
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -481,44 +469,25 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-<<<<<<< HEAD
-        X: 5.6482110023498535
-        Y: -1.8318114280700684
-        Z: -4.438251495361328
-=======
         X: 3.4058802127838135
         Y: -1.78291654586792
         Z: -1.0676016807556152
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-<<<<<<< HEAD
-      Pitch: 1.45979642868042
-      Target Frame: <Fixed Frame>
-      Yaw: 4.585430145263672
-=======
       Pitch: 1.5597960948944092
       Target Frame: <Fixed Frame>
       Yaw: 4.77543306350708
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-<<<<<<< HEAD
-  Height: 1016
-  Hide Left Dock: false
-  Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000004180000039efc0200000005fb000000100044006900730070006c006100790073010000003d00000325000000c900fffffffb0000001200530065006c0065006300740069006f006e00000002e5000000820000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000302000000720000005c00fffffffb0000000a0056006900650077007300000002de000000a6000000a400fffffffb0000000800540069006d00650100000368000000730000003900ffffff0000031a0000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-=======
   Height: 979
   Hide Left Dock: false
   Hide Right Dock: false
   QMainWindow State: 000000ff00000000fd0000000100000000000003070000037dfc0200000005fb000000100044006900730070006c006100790073010000003b00000308000000c700fffffffb0000001200530065006c0065006300740069006f006e00000002e5000000820000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000302000000720000005c00fffffffb0000000a0056006900650077007300000002de000000a6000000a000fffffffb0000000800540069006d006501000003490000006f0000003700ffffff000004670000037d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
   Selection:
     collapsed: false
   Time:
