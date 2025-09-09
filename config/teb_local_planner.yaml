@@ -4,16 +4,6 @@ TebLocalPlannerROS:
   map_frame: map
 
   # 로봇 제한(차등구동 예시)
-<<<<<<< HEAD
-  max_vel_x: 0.7
-  max_vel_x_backwards: -0.5
-  max_vel_theta: 2.0
-  acc_lim_x: 1.5
-  acc_lim_theta: 1.5
-
-  # 궤적 시간 해상도
-  dt_ref: 0.15
-=======
   max_vel_x: 1.0
   max_vel_x_backwards: 0.5
   max_vel_theta: 1.2
@@ -22,7 +12,6 @@ TebLocalPlannerROS:
 
   # 궤적 시간 해상도
   dt_ref: 0.3
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
   dt_hysteresis: 0.1
   global_plan_overwrite_orientation: true
   max_global_plan_lookahead_dist: 3.0
@@ -47,17 +36,9 @@ TebLocalPlannerROS:
   # 풋프린트 모델 (TEB 내부 충돌체크)
   footprint_model:
     type: "polygon"               # point, circle, line, two_circles, polygon
-<<<<<<< HEAD
-    vertices: [[0.15, 0.24], [0.15, -0.24], [-0.15, -0.24], [-0.15, 0.24]]
-=======
     vertices: [[0.30, 0.31], [0.30, -0.31], [-0.30, -0.31], [-0.30, 0.31]]
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
     # is_footprint_dynamic: false  # 필요시 동적 업데이트
 
   # 좁은 통로에서 전역경로 따르기 강화(옵션)
   # via_points_ordered: true
-<<<<<<< HEAD
   # global_plan_viapoint_sep: 0.5
-=======
-  # global_plan_viapoint_sep: 0.5
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
