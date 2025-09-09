@@ -9,7 +9,11 @@
     <arg name="config_dir" default="$(find psdf_ros)/config" />
     <arg name="use_rviz" default="true" />
     <arg name="use_move_base" default="true" />
+<<<<<<< HEAD
     <arg name="x" default="15.0"/>
+=======
+    <arg name="x" default="0.0"/>
+>>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
     <arg name="y" default="0.0"/>
     <arg name="z" default="0.0"/>
     <arg name="yaw" default="0.0"/>

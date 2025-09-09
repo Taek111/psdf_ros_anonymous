@@ -314,11 +314,14 @@ class PSDFRosNode:
                     self.success_count += 1
                 except Exception:
                     pass
+<<<<<<< HEAD
                 # 기록: 성공 시각 (ROS Time)
                 try:
                     self.success_timestamps.append(rospy.Time.now())
                 except Exception:
                     pass
+=======
+>>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
                 try:
                     self.save_solve_times_csv()
                 except Exception as ex:
@@ -528,6 +531,7 @@ class PSDFRosNode:
             if self.solve_times:
                 avg = float(sum(self.solve_times) / len(self.solve_times))
                 rospy.loginfo(f"Average solver time over {len(self.solve_times)} successes: {avg:.6f}s")
+<<<<<<< HEAD
                 # 첫 success ~ 마지막 success 시간차 및 총 구간 시간 출력
                 try:
                     if len(self.success_timestamps) >= 1:
@@ -540,6 +544,8 @@ class PSDFRosNode:
                 except Exception as _ex:
                     rospy.logwarn(f"[PSDFRosNode] Interval/segment time logging failed: {_ex}")
             
+=======
+>>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
             else:
                 rospy.loginfo("No successful solve times recorded.")
         except Exception as ex:

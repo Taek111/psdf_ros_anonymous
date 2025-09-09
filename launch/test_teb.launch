@@ -52,9 +52,12 @@
             <!-- Basic move_base parameters -->
             <rosparam file="$(find psdf_ros)/config/move_base_params.yaml" command="load" />
             
+<<<<<<< HEAD
             <!-- Remap cmd_vel to cmd_vel_fake -->
             <remap from="cmd_vel" to="/cmd_vel_fake" />
 
+=======
+>>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
             <!-- Costmap parameters -->
             <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
             <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
@@ -64,6 +67,12 @@
             <!-- TEB local planner parameters -->
             <rosparam file="$(find psdf_ros)/config/teb_local_planner.yaml" command="load" />
             
+<<<<<<< HEAD
+=======
+            <!-- Remap cmd_vel to cmd_vel_fake -->
+            <remap from="cmd_vel" to="/cmd_vel_fake" />
+
+>>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
             <!-- Robot footprint for costmaps -->
             <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml"/>
         </node>
