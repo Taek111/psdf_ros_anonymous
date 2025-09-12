@@ -1,41 +1,3 @@
-<<<<<<< HEAD
-# goal 1-2 
-
-rostopic pub /move_base_simple/goal geometry_msgs/PoseStamped "header:
-  frame_id: 'map'
-  stamp: {secs: 0, nsecs: 0}
-pose:
-  position:
-    x: 9.0
-    y: -1.0
-    z: 0.0
-  orientation:
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0" --once
-
-#goal 2-3
-
-
-rostopic pub /move_base_simple/goal geometry_msgs/PoseStamped "header:
-  frame_id: 'map'
-  stamp: {secs: 0, nsecs: 0}
-pose:
-  position:
-    x: 15.0
-    y: 0.0
-    z: 0.0
-  orientation:
-    x: 0.0
-    y: 0.0
-    z: 0.0
-    w: 1.0" --once
-
-#final goal
-
-=======
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
 rostopic pub /move_base_simple/goal geometry_msgs/PoseStamped "header:
   frame_id: 'map'
   stamp: {secs: 0, nsecs: 0}
@@ -48,8 +10,4 @@ pose:
     x: 0.0
     y: 0.0
     z: 0.0
-<<<<<<< HEAD
     w: 1.0" --once
-=======
-    w: 1.0" --once
->>>>>>> 97f3496231deb5f754a162f21f92ad7e5cfd22e9
