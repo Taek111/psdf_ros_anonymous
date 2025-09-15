@@ -2,8 +2,7 @@
     <!-- Ego vehicle -->
     <arg name='role_name' default='ego_vehicle'/>
     <arg name="vehicle_filter" default='vehicle.*'/>
-    <arg name="spawn_point" default='285.600006,-243.729996,0.32682,0.0,0.0,90.0'/>
-
+    <arg name="spawn_point" default='285.600006,243.729996,0.5,0.0,0.0,-90.0'/>
     <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
     <arg name="town" default='Town04_Opt'/>
 
@@ -33,7 +32,7 @@
         <param name="host" value="$(arg host)"/>
         <param name="port" value="$(arg port)"/>
         <param name="unload_parked_layer" value="true"/>
-        <param name="num_static" value="4"/>
+        <param name="num_static" value="0"/>
         <param name="exit_after_spawn" value="true"/>
         <param name="world_ready_timeout" value="30.0"/>
     </node>
