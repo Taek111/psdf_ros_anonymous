@@ -18,6 +18,12 @@ class PSDFOptimizerConfig:
         self.horizon = 20
         self.mat_Q = np.diag([1.0, 1.0, 0.1])  # Reduced from 100.0
         self.mat_R = np.diag([0.2, 0.5])  # Reduced from 20.0
+        self.vehicle_model = 'differential'
+        self.wheelbase = 1.0
+        self.steering_min = -0.6
+        self.steering_max = 0.6
+        self.steering_rate_min = -0.8
+        self.steering_rate_max = 0.8
         
         self.terminal_weight = 1.0  # 10.0
         
@@ -87,6 +93,7 @@ class PSDFOptimizer:
         self.psdf_wrapper = None  # PSDFWrapper instance
         self._is_initialized = False
         self._has_prev_solution = False
+        self.vehicle_model = 'differential'
         
         # Local window obstacle detector
         self.obstacle_detector = None
@@ -160,30 +167,47 @@ class PSDFOptimizer:
 
     def create_model(self, param):
         """Create the acados model for the robot dynamics"""
-        # State and input dimensions
-        nx = 3  # x, y, theta
-        nu = 2  # v, omega
-        
-        # Symbolic variables
-        x = ca.MX.sym('x', nx)
-        xdot = ca.MX.sym('xdot', nx)
-        u = ca.MX.sym('u', nu)
-        
-        # Dynamics - differential drive robot
-        f_expl = ca.vertcat(
-            u[0] * ca.cos(x[2]),  # x_dot = v * cos(theta)
-            u[0] * ca.sin(x[2]),  # y_dot = v * sin(theta)
-            u[1]                  # theta_dot = omega
-        )
-        
-        # Create acados model
+        vehicle_model = getattr(param, 'vehicle_model', 'differential')
+        self.vehicle_model = vehicle_model
+
+        if vehicle_model == 'ackermann':
+            nx = 4  # x, y, theta, steering
+            nu = 2  # speed, steering rate
+            wheelbase = float(getattr(param, 'wheelbase', 1.0))
+            self.wheelbase = wheelbase
+            x = ca.MX.sym('x', nx)
+            xdot = ca.MX.sym('xdot', nx)
+            u = ca.MX.sym('u', nu)
+            v = u[0]
+            delta = x[3]
+            yaw_rate = v / wheelbase * ca.tan(delta)
+            f_expl = ca.vertcat(
+                v * ca.cos(x[2]),
+                v * ca.sin(x[2]),
+                yaw_rate,
+                u[1]
+            )
+            model_name = 'ackermann_psdf'
+        else:
+            nx = 3  # x, y, theta
+            nu = 2  # v, omega
+            self.wheelbase = None
+            x = ca.MX.sym('x', nx)
+            xdot = ca.MX.sym('xdot', nx)
+            u = ca.MX.sym('u', nu)
+            f_expl = ca.vertcat(
+                u[0] * ca.cos(x[2]),
+                u[0] * ca.sin(x[2]),
+                u[1]
+            )
+            model_name = 'differential_drive_psdf'
+
         model = AcadosModel()
         model.f_expl_expr = f_expl
         model.x = x
         model.xdot = xdot
         model.u = u
-        model.name = 'differential_drive_psdf'
-        
+        model.name = model_name
         return model
 
     def setup_ocp(self, param, reference_trajectory):
@@ -235,9 +259,24 @@ class PSDFOptimizer:
         
         # Set constraints
         # Input constraints
-        self.ocp.constraints.lbu = np.array([param.vmin, param.omegamin])
-        self.ocp.constraints.ubu = np.array([param.vmax, param.omegamax])
-        self.ocp.constraints.idxbu = np.array([0, 1])
+        if self.vehicle_model == 'ackermann':
+            lbu = np.array([param.vmin, param.steering_rate_min])
+            ubu = np.array([param.vmax, param.steering_rate_max])
+        else:
+            lbu = np.array([param.vmin, param.omegamin])
+            ubu = np.array([param.vmax, param.omegamax])
+
+        self.ocp.constraints.lbu = lbu
+        self.ocp.constraints.ubu = ubu
+        self.ocp.constraints.idxbu = np.array([0, 1], dtype=np.int64)
+
+        if self.vehicle_model == 'ackermann':
+            self.ocp.constraints.idxbx = np.array([3], dtype=np.int64)
+            self.ocp.constraints.lbx = np.array([param.steering_min])
+            self.ocp.constraints.ubx = np.array([param.steering_max])
+            self.ocp.constraints.idxbx_e = np.array([3], dtype=np.int64)
+            self.ocp.constraints.lbx_e = np.array([param.steering_min])
+            self.ocp.constraints.ubx_e = np.array([param.steering_max])
         
         # Initial state constraint
         if self.state is not None:
@@ -536,19 +575,22 @@ class PSDFOptimizer:
             u_traj = solution.get_input_trajectory()
             
             if u_traj is not None and u_traj.size > 0:
-                # Return first control input
-                v_opt = float(u_traj[0, 0])
-                omega_opt = float(u_traj[1, 0])
-                u_opt = [v_opt, omega_opt]
-                
+                u0 = u_traj[:, 0]
+                u_opt = [float(u0[i]) for i in range(min(len(u0), self.nu))]
+
                 # Check solver status
                 stats = solution.stats()
                 success = stats.get('return_status', 'failure') == 'success'
-                
+
                 info = {
                     'solver_time': getattr(self, 'solver_times', [0])[-1] if hasattr(self, 'solver_times') else 0,
-                    'status': stats.get('return_status', 'unknown')
+                    'status': stats.get('return_status', 'unknown'),
+                    'vehicle_model': self.vehicle_model
                 }
+                if self.vehicle_model == 'ackermann' and x_traj is not None and x_traj.shape[0] >= 4:
+                    info['steering_now'] = float(x_traj[3, 0])
+                    next_idx = 1 if x_traj.shape[1] > 1 else 0
+                    info['steering_next'] = float(x_traj[3, next_idx])
                 
                 return success, u_opt, x_traj, info
             else:
