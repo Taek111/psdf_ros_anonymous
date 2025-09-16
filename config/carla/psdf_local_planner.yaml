@@ -1,0 +1,31 @@
+# Parameters for PSDF-MPC local planner (unified from launch)
+horizon: 15
+dt: 0.1
+# Target spacing [m] between reference points used by MPC
+ref_ds: 0.1
+
+# Costs
+Q: [30.0, 30.0, 1.0]
+R: [1.0, 1.0]
+terminal_weight: 1.0
+
+# Safety and limits
+d_safe: 0.01
+vmax: 1.0
+vmin: -0.5
+omegamax: 2.0 
+omegamin: -2.0
+
+# Obstacle/PSDF parameters
+max_clusters: 20
+max_edges_per_cluster: 4
+obstacle_topic: "/detected_edges"
+line_segment_topic: "/line_segments"
+
+# Frames
+robot_base: "ego_vehicle"
+global_frame: "odom"
+
+# General
+service_timeout: 2.0
+emergency_stop_on_fail: true

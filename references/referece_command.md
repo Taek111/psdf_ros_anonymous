@@ -17,3 +17,9 @@ pose:
     y: 0.0
     z: 0.0
     w: 1.0" --once
+
+
+# Carla Command
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/carla/ego_vehicle/twist
+
+roslaunch carla_twist_to_control carla_twist_to_control.launch role_name:=ego_vehicle

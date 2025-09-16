@@ -1,0 +1,55 @@
+# CARLA Sedan Gmapping Parameters
+# Baseline: Ackermann car (≈4.6m x 1.9m), 360° 2D LaserScan (from pointcloud_to_laserscan)
+
+# 맵 업데이트 주기(Hz)
+map_update_interval: 1.0
+
+# 레이저 사용 최대거리 (LiDAR가 더 길어도 매칭 안정성 위해 살짝 보수적으로)
+maxUrange: 35.0
+
+# 스캔 매칭 기본 분산/커널
+sigma: 0.05
+kernelSize: 1
+
+# 스캔 매칭 탐색 스텝(차 크기·속도를 고려해 약간 여유)
+lstep: 0.10          # [m]
+astep: 0.10          # [rad]
+iterations: 7
+lsigma: 0.08
+ogain: 3.0
+
+# 스캔 다운샘플링(빔 스킵) — CPU 여유 없으면 2~3으로
+lskip: 1
+
+# 유효 매칭 최소 점수(차가 빠르게 움직일 때 오매칭 방지용으로 약간 상향)
+minimumScore: 40
+
+# 오도메트리 잡음(시뮬 오도메는 깔끔하므로 낮게, 하지만 차속 고려해 소폭 상향)
+srr: 0.02   # m/m
+srt: 0.02   # m/rad
+str: 0.02   # rad/m
+stt: 0.02   # rad/rad
+
+# 스캔 처리 트리거(차체 길이/회전 고려해 더 촘촘히)
+linearUpdate: 0.30   # 차가 0.3m 움직일 때마다 처리
+angularUpdate: 0.07  # 약 4°
+temporalUpdate: 0.25 # 0.25s마다 최소 1회 처리
+
+# 파티클 필터 — 시뮬/좋은 오도메 가정이면 60면 충분 (더 험한 환경은 80~100)
+resampleThreshold: 0.4
+particles: 60
+
+# 맵 크기 — 도시 블록 한두 개 커버(해상도 0.05m면 메모리/성능 균형 괜찮음)
+xmin: -100.0
+ymin: -100.0
+xmax:  100.0
+ymax:  100.0
+
+# 맵 해상도
+delta: 0.05
+
+# 우도 샘플링 범위 — Ackermann 특성상 회전 오차 대비 탐색폭 소폭 확대
+llsamplerange: 0.05   # [m]
+llsamplestep: 0.05
+lasamplerange: 0.025  # [rad]
+lasamplestep: 0.025
