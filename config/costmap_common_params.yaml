@@ -5,7 +5,6 @@
 obstacle_range: 5.0
 raytrace_range: 7.0
 footprint: [[0.3, 0.30], [0.3, -0.3], [-0.3, -0.3], [-0.3, 0.3]]
-inflation_radius: 0.38
 
 # Cost scaling
 cost_scaling_factor: 3.0
@@ -52,8 +51,4 @@ obstacle_layer:
     min_obstacle_height: 0.25
     max_obstacle_height: 0.35
 
-# Inflation layer parameters
-inflation_layer:
-  enabled: true
-  cost_scaling_factor: 3.0
-  inflation_radius: 0.38
+

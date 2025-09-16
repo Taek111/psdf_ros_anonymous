@@ -70,12 +70,12 @@
     </model>
     <model name='top_wall'>
       <static>1</static>
-      <pose>15 3 0.25 0 -0 0</pose>
+      <pose>15 3 0.5 0 -0 0</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>39.9651 0.3 0.5</size>
+              <size>39.9651 0.3 1.0</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -95,7 +95,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>39.9651 0.3 0.5</size>
+              <size>39.9651 0.3 1.0</size>
             </box>
           </geometry>
           <material>
@@ -110,12 +110,12 @@
     </model>
     <model name='bottom_wall'>
       <static>1</static>
-      <pose>15 -3 0.25 0 -0 0</pose>
+      <pose>15 -3 0.5 0 -0 0</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>39.8395 0.3 0.5</size>
+              <size>39.8395 0.3 1.0</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -135,7 +135,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>39.8395 0.3 0.5</size>
+              <size>39.8395 0.3 1.0</size>
             </box>
           </geometry>
           <material>
@@ -150,12 +150,12 @@
     </model>
     <model name='pillar_c1_top'>
       <static>1</static>
-      <pose>6 0.5 0.25 0 -0 0</pose>
+      <pose>6 0.5 0.5 0 -0 0</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.8 4.7 0.5</size>
+              <size>0.8 4.7 1.0</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -175,7 +175,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.8 4.7 0.5</size>
+              <size>0.8 4.7 1.0</size>
             </box>
           </geometry>
           <material>
@@ -190,12 +190,12 @@
     </model>
     <model name='pillar_c2_top'>
       <static>1</static>
-      <pose>12 1.625 0.25 0 -0 0</pose>
+      <pose>12 1.625 0.5 0 -0 0</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.8 2.45 0.5</size>
+              <size>0.8 2.45 1.0</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -215,7 +215,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.8 2.45 0.5</size>
+              <size>0.8 2.45 1.0</size>
             </box>
           </geometry>
           <material>
@@ -230,12 +230,12 @@
     </model>
     <model name='pillar_c2_bottom'>
       <static>1</static>
-      <pose>12 -1.625 0.25 0 -0 0</pose>
+      <pose>12 -1.625 0.5 0 -0 0</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.8 2.45 0.5</size>
+              <size>0.8 2.45 1.0</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -255,7 +255,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.8 2.45 0.5</size>
+              <size>0.8 2.45 1.0</size>
             </box>
           </geometry>
           <material>
@@ -275,7 +275,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -296,7 +296,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -317,7 +317,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -338,7 +338,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -354,12 +354,12 @@
     </model>
     <model name='box_1'>
       <static>1</static>
-      <pose>20.669 -0.369 0 0 -0 0.88</pose>
+      <pose>20.669 -0.369 0.5 0 -0 0.88</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -379,7 +379,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <material>
@@ -399,7 +399,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -420,7 +420,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -441,7 +441,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.6 0.6 1</scale>
             </mesh>
           </geometry>
@@ -462,7 +462,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.6 0.6 1</scale>
             </mesh>
           </geometry>
@@ -478,12 +478,12 @@
     </model>
     <model name='box_2'>
       <static>1</static>
-      <pose>19.171 -1.446 0 0 -0 0.71</pose>
+      <pose>19.171 -1.446 0.5 0 -0 0.71</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -503,7 +503,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <material>
@@ -523,7 +523,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -544,7 +544,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -565,7 +565,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -586,7 +586,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -602,12 +602,12 @@
     </model>
     <model name='box_3'>
       <static>1</static>
-      <pose>25.350 0.141 0 0 -0 1.76</pose>
+      <pose>25.350 0.141 0.5 0 -0 1.76</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.45 0.45 0.5</size>
+              <size>0.45 0.45 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -627,7 +627,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.45 0.45 0.5</size>
+              <size>0.45 0.45 1</size>
             </box>
           </geometry>
           <material>
@@ -642,12 +642,12 @@
     </model>
     <model name='box_4'>
       <static>1</static>
-      <pose>16.806 1.248 0 0 -0 0.54</pose>
+      <pose>16.806 1.248 0.5 0 -0 0.54</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -667,7 +667,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.6 0.45 0.5</size>
+              <size>0.6 0.45 1</size>
             </box>
           </geometry>
           <material>
@@ -687,7 +687,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -708,7 +708,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.9 0.9 1</scale>
             </mesh>
           </geometry>
@@ -729,7 +729,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.6 0.6 1</scale>
             </mesh>
           </geometry>
@@ -750,7 +750,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.6 0.6 1</scale>
             </mesh>
           </geometry>
@@ -766,12 +766,12 @@
     </model>
     <model name='box_5'>
       <static>1</static>
-      <pose>24.573 1.111 0 0 -0 1.59</pose>
+      <pose>24.573 1.111 0.5 0 -0 1.59</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.45 0.55 0.5</size>
+              <size>0.45 0.55 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -791,7 +791,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.45 0.55 0.5</size>
+              <size>0.45 0.55 1</size>
             </box>
           </geometry>
           <material>
@@ -811,7 +811,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -832,7 +832,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -853,7 +853,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -874,7 +874,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/pent_prism.stl</uri>
               <scale>0.85 0.85 1</scale>
             </mesh>
           </geometry>
@@ -890,12 +890,12 @@
     </model>
     <model name='box_6'>
       <static>1</static>
-      <pose>22.2 2.450 0 0 -0 1.42</pose>
+      <pose>22.2 2.450 0.5 0 -0 1.42</pose>
       <link name='link'>
         <collision name='c'>
           <geometry>
             <box>
-              <size>0.45 0.45 0.5</size>
+              <size>0.45 0.45 1</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -915,7 +915,7 @@
         <visual name='v'>
           <geometry>
             <box>
-              <size>0.45 0.45 0.5</size>
+              <size>0.45 0.45 1</size>
             </box>
           </geometry>
           <material>
@@ -935,7 +935,7 @@
         <collision name='c'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -956,7 +956,7 @@
         <visual name='v'>
           <geometry>
             <mesh>
-              <uri>/home/taek111/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
+              <uri>/home/taekwon/catkin_ws/src/psdf_ros/worlds/tri_prism.stl</uri>
               <scale>0.7 0.7 1</scale>
             </mesh>
           </geometry>
@@ -975,8 +975,7 @@
     <atmosphere type='adiabatic'/>
     <physics type='ode'>
       <max_step_size>0.01</max_step_size>
-      <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>120</real_time_update_rate>
+      <real_time_update_rate>100</real_time_update_rate>
     </physics>
     <wind/>
     <spherical_coordinates>

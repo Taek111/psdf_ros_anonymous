@@ -10,7 +10,7 @@ R: [1.0, 1.0]
 terminal_weight: 1.0
 
 # Safety and limits
-d_safe: 0.005
+d_safe: 0.01
 vmax: 1.0
 vmin: -0.5
 omegamax: 2.0 

@@ -8,3 +8,9 @@ global_costmap:
   publish_frequency: 0.5
   static_map: true
   transform_tolerance: 0.5
+
+# Inflation layer parameters
+inflation_layer:
+  enabled: true
+  cost_scaling_factor: 3.0
+  inflation_radius: 0.38

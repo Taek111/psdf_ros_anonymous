@@ -69,6 +69,11 @@
         </node>
     </group>
     
+    <!-- line segments to obstacles -->
+    <!-- <node name="line_segments_to_obstacles" pkg="psdf_ros" type="line_segments_to_obstacles.py">
+        <remap from="/rda_obstacles" to="/move_base/TebLocalPlannerROS/obstacles"/>
+    </node> -->
+
     <!-- Visualization (optional) -->
     <!-- <group if="$(arg use_rviz)">
         <node name="rviz" pkg="rviz" type="rviz" 

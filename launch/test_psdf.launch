@@ -29,10 +29,10 @@
     <group if="$(arg use_move_base)">
         <!-- Map server (if using a static map)-->
         <node name="map_server" pkg="map_server" type="map_server" 
-              args="$(find psdf_ros)/maps/corridor_world.yaml" output="screen" />
+              args="$(find psdf_ros)/maps/corridor_world.yaml" output="log" />
         
         <!-- AMCL for localization -->
-        <node pkg="amcl" type="amcl" name="amcl" output="screen">
+        <node pkg="amcl" type="amcl" name="amcl" output="log">
             <!-- Initial pose estimate -->
             <param name="initial_pose_x" value="$(arg x)"/>
             <param name="initial_pose_y" value="$(arg y)"/>

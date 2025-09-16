@@ -1,3 +1,9 @@
+# psdf command without tf_repeated_data warnings 
+
+roslaunch psdf_ros test_psdf.launch 2> >(grep -v TF_REPEATED_DATA buffer_core)
+
+# goal command 
+
 rostopic pub /move_base_simple/goal geometry_msgs/PoseStamped "header:
   frame_id: 'map'
   stamp: {secs: 0, nsecs: 0}
