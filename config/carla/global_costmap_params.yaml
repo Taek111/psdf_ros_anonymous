@@ -1,16 +1,23 @@
 # Global costmap parameters for move_base
 # Used for global path planning
 
-global_costmap:
+# NOTE: This file is loaded into the move_base private namespace with ns="global_costmap"
+# so keys here configure ~global_costmap/* directly without wiping plugin definitions.
+global_costmap: 
   global_frame: map
   robot_base_frame: ego_vehicle
   update_frequency: 1.0
   publish_frequency: 0.5
-  static_map: true
+  rolling_window: true
+  static_map: false        # 정적 맵 대신 센서/레이어로 창만 유지
+  width: 100.0             # 창 크기(미터). 상황 맞춰 120~250 정도 추천
+  height: 100.0
   transform_tolerance: 0.5
 
-# Inflation layer parameters
-inflation_layer:
-  enabled: true
-  cost_scaling_factor: 3.0
-  inflation_radius: 0.38
+
+  # Inflation layer parameters
+  inflation_layer:
+    enabled: true
+    cost_scaling_factor: 3.0
+    inflation_radius: 0.38
+

@@ -9,6 +9,9 @@
     <!-- Use internal TF from ros_bridge by default; enable custom TF via CARLA API if needed -->
     <arg name="use_carla_localization" default="false"/>
 
+    <!-- Use CARLA /clock for all nodes -->
+    <param name="/use_sim_time" value="true"/>
+
     <!-- CARLA Connection -->
     <arg name='host' default='localhost'/>
     <arg name='port' default='2000'/>
@@ -43,12 +46,12 @@
     <!-- 4) PointCloud2 → LaserScan (for 2D planners) -->
     <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
         <remap from="cloud_in" to="/carla/ego_vehicle/lidar"/>
-        <remap from="scan" to="scan"/>
+        <remap from="scan" to="/scan"/>
         <rosparam>
             target_frame: ego_vehicle # Leave disabled to output scan in pointcloud frame
             transform_tolerance: 0.01
-            min_height: 0.2
-            max_height: 1.5
+            min_height: 0.5
+            max_height: 2.0
 
             angle_min: -3.1416 # -M_PI
             angle_max: 3.1416 # M_PI
@@ -56,7 +59,7 @@
             scan_time: 0.3333
             range_min: 0.01
             range_max: 80.0
-            use_inf: true
+            use_inf: false
             inf_epsilon: 1.0
 
             # Concurrency level, affects number of pointclouds queued for processing and number of threads used
@@ -66,12 +69,6 @@
             concurrency_level: 1
         </rosparam>
     </node>
-
-
-    <!-- 5) Twist→Ackermann bridge -->
-    <include file="$(find psdf_ros)/launch/carla_twist_to_ackermann_bridge.launch">
-        <arg name="role_name" value="ego_vehicle"/>
-    </include>
 
     <!-- 6) Optional: CARLA API-based TF (map -> ego_vehicle). Disable if ros_bridge TF is used -->
     <group if="$(arg use_carla_localization)">

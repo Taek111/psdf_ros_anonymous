@@ -14,6 +14,9 @@
     <arg name='port' default='2000'/>
     <arg name='use_carla_localization' default='false'/>
   
+    <!-- Use CARLA /clock when running navigation alone -->
+    <param name="/use_sim_time" value="true"/>
+  
     <!-- 1. PSDF-ROS Service Node -->
     <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
       <!-- Load planner params into node private namespace (~) -->
@@ -42,10 +45,11 @@
             <!-- Costmap parameters -->
             <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="global_costmap" />
             <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="local_costmap" />
-            <rosparam file="$(arg config_dir)/local_costmap_params.yaml" command="load" />
-            <rosparam file="$(arg config_dir)/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/local_costmap_params.yaml" command="load"/>
+            <rosparam file="$(arg config_dir)/global_costmap_params.yaml" command="load"/>
             <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
             <remap from="cmd_vel" to="/carla/ego_vehicle/twist" />
+            <remap from="scan" to="/scan" />
         </node>
     </group>
     
