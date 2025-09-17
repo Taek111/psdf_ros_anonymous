@@ -1,17 +1,20 @@
 <launch>
-    <!-- Ego vehicle -->
-    <arg name='role_name' default='base_link'/>
+    <!-- CARLA simulation bringup: ros_bridge, ego spawn, map generation, LiDAR->LaserScan, Twist→Ackermann bridge, optional TF -->
+    <!-- Arguments -->
+    <arg name='role_name' default='ego_vehicle'/>
     <arg name="vehicle_filter" default='vehicle.*'/>
     <arg name="spawn_point" default='285.600006,243.729996,0.5,0.0,0.0,-90.0'/>
     <!-- Map to load on startup (either a predefined CARLA town (e.g. 'Town01'), or a OpenDRIVE map file) -->
     <arg name="town" default='Town04_Opt'/>
+    <!-- Use internal TF from ros_bridge by default; enable custom TF via CARLA API if needed -->
+    <arg name="use_carla_localization" default="false"/>
 
     <!-- CARLA Connection -->
     <arg name='host' default='localhost'/>
     <arg name='port' default='2000'/>
     <arg name='timeout' default='60'/>
 
-    <!-- CARLA ROS Bridge -->
+    <!-- 1) CARLA ROS Bridge -->
     <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge.launch">
         <arg name='host' value='$(arg host)'/>
         <arg name='port' value='$(arg port)'/>
@@ -19,7 +22,7 @@
         <arg name='timeout' value='$(arg timeout)'/>
     </include>
 
-    <!-- the ego vehicle, that will be controlled by an agent (e.g. carla_ad_agent) -->
+    <!-- 2) Ego vehicle spawn (controlled by agent e.g. carla_ad_agent) -->
     <include file="$(find carla_spawn_objects)/launch/carla_example_ego_vehicle.launch">
         <arg name="objects_definition_file" value='$(find psdf_ros)/config/carla_objects.json'/>
         <arg name='role_name' value='$(arg role_name)'/>
@@ -27,17 +30,17 @@
         <arg name="spawn_sensors_only" value="false"/>
     </include>
 
-    <!-- PSDF-ROS: Spawn ego and static vehicles via custom node -->
+    <!-- 3) PSDF-ROS map generation (spawn static vehicles, unload layers) -->
     <node pkg="psdf_ros" type="carla_map_generation.py" name="carla_map_generation" output="screen">
         <param name="host" value="$(arg host)"/>
         <param name="port" value="$(arg port)"/>
         <param name="unload_parked_layer" value="true"/>
-        <param name="num_static" value="0"/>
+        <param name="num_static" value="4"/>
         <param name="exit_after_spawn" value="true"/>
         <param name="world_ready_timeout" value="30.0"/>
     </node>
 
-    <!-- run pointcloud_to_laserscan node -->
+    <!-- 4) PointCloud2 → LaserScan (for 2D planners) -->
     <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
         <remap from="cloud_in" to="/carla/ego_vehicle/lidar"/>
         <remap from="scan" to="scan"/>
@@ -47,9 +50,9 @@
             min_height: 0.2
             max_height: 1.5
 
-            angle_min: -3.1416 # -M_PI/2
-            angle_max: 3.1416 # M_PI/2
-            angle_increment: 0.0087 # M_PI/360.0
+            angle_min: -3.1416 # -M_PI
+            angle_max: 3.1416 # M_PI
+            angle_increment: 0.0087 # M_PI/360.0 (~0.5 deg)
             scan_time: 0.3333
             range_min: 0.01
             range_max: 80.0
@@ -64,10 +67,22 @@
         </rosparam>
     </node>
 
-    <!-- 4. Twist to control -->
-    <include file="$(find carla_twist_to_control)/launch/carla_twist_to_control.launch">
+
+    <!-- 5) Twist→Ackermann bridge -->
+    <include file="$(find psdf_ros)/launch/carla_twist_to_ackermann_bridge.launch">
         <arg name="role_name" value="ego_vehicle"/>
     </include>
 
+    <!-- 6) Optional: CARLA API-based TF (map -> ego_vehicle). Disable if ros_bridge TF is used -->
+    <group if="$(arg use_carla_localization)">
+        <node pkg="psdf_ros" type="carla_localization.py" name="carla_localization" output="screen">
+            <param name="host" value="$(arg host)"/>
+            <param name="port" value="$(arg port)"/>
+            <param name="role_name" value="ego_vehicle"/>
+            <param name="map_frame" value="map"/>
+            <param name="base_frame" value="ego_vehicle"/>
+            <param name="publish_rate" value="20.0"/>
+        </node>
+    </group>
 
 </launch>

@@ -13,7 +13,7 @@ Panels:
         - /Path4
         - /Path5
       Splitter Ratio: 0.27037516236305237
-    Tree Height: 666
+    Tree Height: 672
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -42,7 +42,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.029999999329447746
         Value: Lines
@@ -55,7 +55,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
@@ -214,12 +214,12 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: Local Costmap
       Topic: /move_base/local_costmap/costmap
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988079071
       Class: rviz/Map
       Color Scheme: costmap
@@ -233,12 +233,12 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz/Polygon
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Name: Robot Footprint
       Queue Size: 10
       Topic: /move_base/local_costmap/footprint
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -276,13 +276,13 @@ Visualization Manager:
       Queue Size: 100
       Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /edge_clusters_marker
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -308,30 +308,12 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Filter (blacklist): ""
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        base_link:
-          Value: true
-        box_link:
-          Value: false
-        front_left_wheel_link:
-          Value: false
-        front_right_wheel_link:
-          Value: false
-        laser_link:
-          Value: false
-        map:
-          Value: false
-        odom:
-          Value: false
-        rear_left_wheel_link:
-          Value: false
-        rear_right_wheel_link:
-          Value: false
       Marker Alpha: 1
       Marker Scale: 3
       Name: TF
@@ -339,23 +321,9 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            base_link:
-              box_link:
-                {}
-              front_left_wheel_link:
-                {}
-              front_right_wheel_link:
-                {}
-              laser_link:
-                {}
-              rear_left_wheel_link:
-                {}
-              rear_right_wheel_link:
-                {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -460,6 +428,14 @@ Visualization Manager:
       Topic: /move_base/TebLocalPlannerROS/local_plan
       Unreliable: false
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /visualization_marker_array
+      Name: MarkerArray
+      Namespaces:
+        trajectory: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -488,7 +464,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 19.347000122070312
+      Distance: 33.1294059753418
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -496,33 +472,33 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 5.4725494384765625
-        Y: -0.7989758849143982
-        Z: -1.1310888528823853
+        X: 11.898953437805176
+        Y: -0.4562203884124756
+        Z: 2.850862741470337
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.4047964811325073
+      Pitch: 1.5547963380813599
       Target Frame: <Fixed Frame>
-      Yaw: 4.775432109832764
+      Yaw: 3.1354315280914307
     Saved: ~
 Window Geometry:
   Displays:
-    collapsed: false
+    collapsed: true
   Height: 1016
-  Hide Left Dock: false
+  Hide Left Dock: true
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000004180000039efc0200000005fb000000100044006900730070006c006100790073010000003d00000325000000c900fffffffb0000001200530065006c0065006300740069006f006e00000002e5000000820000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000302000000720000005c00fffffffb0000000a0056006900650077007300000002de000000a6000000a400fffffffb0000000800540069006d00650100000368000000730000003900ffffff0000031a0000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd000000010000000000000418000003a2fc0200000005fb000000100044006900730070006c006100790073000000003b00000329000000c700fffffffb0000001200530065006c0065006300740069006f006e00000002e5000000820000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730000000302000000720000005c00fffffffb0000000a0056006900650077007300000002de000000a6000000a000fffffffb0000000800540069006d0065000000036a000000730000003700ffffff00000738000003a200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
-    collapsed: false
+    collapsed: true
   Tool Properties:
     collapsed: false
   Views:
     collapsed: false
   Width: 1848
-  X: 72
-  Y: 27
+  X: 40
+  Y: -5

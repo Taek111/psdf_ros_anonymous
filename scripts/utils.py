@@ -189,13 +189,14 @@ class DifferentialDriveSystem:
 
 
 class AckermannSystem:
-    """Ackermann (bicycle) model dynamics with steering state"""
+    """Ackermann (bicycle) model with direct steering control."""
 
-    def __init__(self, x, u=np.array([0.0, 0.0]), wheelbase=1.0, steering_limits=None, steering_rate_limits=None, vertices=None):
+    def __init__(self, x, u=np.array([0.0, 0.0]), wheelbase=1.0, steering_limits=None, vertices=None):
         self.wheelbase = float(max(wheelbase, 1e-3))
         self.steering_limits = steering_limits or (-0.6, 0.6)
-        self.steering_rate_limits = steering_rate_limits or (-1.0, 1.0)
-        self._state = State(x, u)
+        state_vec = np.array(x, dtype=float)
+        control_vec = np.array(u, dtype=float)
+        self._state = State(state_vec, control_vec)
         if vertices is not None:
             self._geometry = PolytopeRegion.convex_hull(np.array(vertices))
         else:
@@ -204,42 +205,33 @@ class AckermannSystem:
     def clamp_steering(self, delta):
         return _clamp(delta, self.steering_limits[0], self.steering_limits[1])
 
-    def clamp_steering_rate(self, delta_dot):
-        return _clamp(delta_dot, self.steering_rate_limits[0], self.steering_rate_limits[1])
-
     def forward_dynamics(self, x, u, timestep):
-        x_next = np.zeros(shape=(4,), dtype=float)
+        x_next = np.zeros(shape=(3,), dtype=float)
         v = float(u[0])
-        delta = float(x[3])
-        delta_dot = self.clamp_steering_rate(float(u[1]))
-        delta_next = self.clamp_steering(delta + delta_dot * timestep)
+        delta = self.clamp_steering(float(u[1]))
         yaw_rate = v / self.wheelbase * math.tan(delta)
         x_next[0] = x[0] + v * math.cos(x[2]) * timestep
         x_next[1] = x[1] + v * math.sin(x[2]) * timestep
         x_next[2] = x[2] + yaw_rate * timestep
-        x_next[3] = delta_next
         return x_next
 
     def forward_dynamics_opt(self, timestep):
-        x_symbol = ca.SX.sym("x", 4)
+        x_symbol = ca.SX.sym("x", 3)
         u_symbol = ca.SX.sym("u", 2)
         v = u_symbol[0]
-        delta = x_symbol[3]
+        delta = u_symbol[1]
         yaw_rate = v / self.wheelbase * ca.tan(delta)
         x_next = x_symbol[0] + v * ca.cos(x_symbol[2]) * timestep
         y_next = x_symbol[1] + v * ca.sin(x_symbol[2]) * timestep
         theta_next = x_symbol[2] + yaw_rate * timestep
-        delta_next = x_symbol[3] + u_symbol[1] * timestep
-        state_symbol_next = ca.vertcat(x_next, y_next, theta_next, delta_next)
+        state_symbol_next = ca.vertcat(x_next, y_next, theta_next)
         return ca.Function("Ackermann_dynamics", [x_symbol, u_symbol], [state_symbol_next])
 
     def nominal_safe_controller(self, x, timestep, v_last, amin, amax):
         u_nom = np.zeros(shape=(2,))
-        a_nom = np.clip(-v_last / timestep, amin, amax)
+        a_nom = np.clip(-v_last / max(timestep, 1e-3), amin, amax)
         u_nom[0] = v_last + a_nom * timestep
-        delta_target = 0.0
-        delta_error = delta_target - float(x[3])
-        u_nom[1] = self.clamp_steering_rate(delta_error / max(timestep, 1e-3))
+        u_nom[1] = self.clamp_steering(0.0)
         x_next = self.forward_dynamics(x, u_nom, timestep)
         return x_next, u_nom
 
@@ -259,8 +251,9 @@ class AckermannSystem:
 
     def update(self, unew, timestep):
         xnew = self.forward_dynamics(self._state._x, unew, timestep)
-        self._state._x = xnew
-        self._state._u = unew
+        v = float(unew[0])
+        delta = self.clamp_steering(float(unew[1]))
+        self._state = State(xnew, np.array([v, delta], dtype=float))
 
 
 def get_dist_point_to_region(point, mat_A, vec_b):

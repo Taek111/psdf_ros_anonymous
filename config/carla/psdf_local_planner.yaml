@@ -11,10 +11,10 @@ terminal_weight: 1.0
 
 # Safety and limits
 d_safe: 0.01
-vmax: 1.0
-vmin: -0.5
-omegamax: 2.0 
-omegamin: -2.0
+vmax: 3.5
+vmin: -2.5
+omegamax: 1.4 
+omegamin: -1.4
 
 # Obstacle/PSDF parameters
 max_clusters: 20
@@ -24,7 +24,7 @@ line_segment_topic: "/line_segments"
 
 # Frames
 robot_base: "ego_vehicle"
-global_frame: "odom"
+global_frame: "map"
 
 # General
 service_timeout: 2.0

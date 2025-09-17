@@ -105,10 +105,8 @@ class PSDFRosNode:
             'wheelbase': rospy.get_param('~wheelbase', 1.0),
             'steering_min': rospy.get_param('~steering_min', -0.6),
             'steering_max': rospy.get_param('~steering_max', 0.6),
-            'steering_rate_min': rospy.get_param('~steering_rate_min', -0.8),
-            'steering_rate_max': rospy.get_param('~steering_rate_max', 0.8),
             'initial_steering': rospy.get_param('~initial_steering', 0.0),
-            'Q': rospy.get_param('~Q', [50.0, 50.0, 1.0, 0.5]),
+            'Q': rospy.get_param('~Q', [50.0, 50.0, 1.0]),
             'R': rospy.get_param('~R', [0.2, 0.05])
         }
         
@@ -136,7 +134,7 @@ class PSDFRosNode:
             cfg = PSDFOptimizerConfig()  # default values
         # Override some fields from ROS params for quick tuning
         vehicle_model = self.params['vehicle_model']
-        state_dim = 4 if vehicle_model == 'ackermann' else 3
+        state_dim = 3
         control_dim = 2
         cfg.horizon = self.params['horizon']
         cfg.tf = cfg.horizon * self.params['dt']
@@ -155,8 +153,6 @@ class PSDFRosNode:
         cfg.wheelbase = self.params['wheelbase']
         cfg.steering_min = self.params['steering_min']
         cfg.steering_max = self.params['steering_max']
-        cfg.steering_rate_min = self.params['steering_rate_min']
-        cfg.steering_rate_max = self.params['steering_rate_max']
         cfg.vmin = self.params['vmin']
         cfg.vmax = self.params['vmax']
         cfg.omegamin = self.params['omegamin']
@@ -177,20 +173,18 @@ class PSDFRosNode:
     def create_system(self, x_init=None, u_init=None):
         """Create robot system from parameters."""
         vehicle_model = self.params['vehicle_model']
-        if x_init is None:
-            if vehicle_model == 'ackermann':
-                x_init = np.array([0.0, 0.0, 0.0, self.params['initial_steering']])
-            else:
-                x_init = np.array([0.0, 0.0, 0.0])
-        if u_init is None:
-            u_init = np.array([0.0, 0.0])
-
         if vehicle_model == 'ackermann':
+            if x_init is None:
+                x_init = np.array([0.0, 0.0, 0.0])
+            if u_init is None:
+                u_init = np.array([0.0, self.params['initial_steering']])
             steering_limits = (self.params['steering_min'], self.params['steering_max'])
-            steering_rate_limits = (self.params['steering_rate_min'], self.params['steering_rate_max'])
-            self.system = AckermannSystem(x_init, u_init, self.params['wheelbase'], steering_limits, steering_rate_limits, self.params['footprint'])
+            self.system = AckermannSystem(x_init, u_init, self.params['wheelbase'], steering_limits, self.params['footprint'])
         else:
-            # Create system using the existing DifferentialDriveSystem class
+            if x_init is None:
+                x_init = np.array([0.0, 0.0, 0.0])
+            if u_init is None:
+                u_init = np.array([0.0, 0.0])
             self.system = DifferentialDriveSystem(x_init, u_init, self.params['footprint'])
         
     def line_segment_cb(self, msg: LineSegmentList):
@@ -341,20 +335,17 @@ class PSDFRosNode:
             vehicle_model = self.params['vehicle_model']
             if vehicle_model == 'ackermann':
                 speed = float(u_opt[0]) if u_opt else 0.0
-                steer_rate = float(u_opt[1]) if len(u_opt) > 1 else 0.0
-                current_delta = float(info.get('steering_now', state._x[3] if len(state._x) >= 4 else self.last_steering))
-                delta_cmd = current_delta + steer_rate * float(self.params['dt'])
-                delta_cmd = float(np.clip(delta_cmd, self.params['steering_min'], self.params['steering_max']))
+                steering = float(u_opt[1]) if len(u_opt) > 1 else self.last_steering
+                steering = float(np.clip(steering, self.params['steering_min'], self.params['steering_max']))
                 wheelbase = max(float(self.params['wheelbase']), 1e-3)
-                omega = speed / wheelbase * math.tan(delta_cmd)
+                omega = speed / wheelbase * math.tan(steering)
                 v = speed
                 if success:
-                    self.last_steering = delta_cmd
+                    self.last_steering = steering
                 resp = self.create_response(v, omega, success)
-                # Encode steering info in unused twist channels for downstream consumers
-                resp.cmd_vel.twist.angular.y = delta_cmd
-                resp.cmd_vel.twist.angular.x = steer_rate
-                rospy.loginfo_throttle(1.0, f"[PSDF_SERVICE] Ackermann response: v={v:.3f}, delta={delta_cmd:.3f}, delta_rate={steer_rate:.3f}, omega={omega:.3f}, success={success}")
+                resp.cmd_vel.twist.angular.y = steering
+                resp.cmd_vel.twist.angular.x = 0.0
+                rospy.loginfo_throttle(1.0, f"[PSDF_SERVICE] Ackermann response: v={v:.3f}, delta={steering:.3f}, omega={omega:.3f}, success={success}")
             else:
                 v = float(u_opt[0]) if u_opt else 0.0
                 omega = float(u_opt[1]) if len(u_opt) > 1 else 0.0
@@ -445,10 +436,10 @@ class PSDFRosNode:
                     delta = math.atan(wheelbase * omega / max(v, 1e-3))
                 except Exception:
                     delta = float(self.last_steering)
-            delta = np.clip(delta, self.params['steering_min'], self.params['steering_max'])
-            self.last_steering = float(delta)
-            state_vec = np.array([pos.x, pos.y, yaw, delta])
-            control_vec = np.array([v, 0.0]) if twist is not None else np.array([0.0, 0.0])
+            delta = float(np.clip(delta, self.params['steering_min'], self.params['steering_max']))
+            self.last_steering = delta
+            state_vec = np.array([pos.x, pos.y, yaw])
+            control_vec = np.array([v, delta])
             return State(state_vec, control_vec)
 
         # Differential drive fallback
@@ -567,12 +558,7 @@ class PSDFRosNode:
         except Exception as ex:
             rospy.logwarn(f"[PSDFRosNode] Failed to publish debug ref path: {ex}")
 
-        ref_arr = np.array(ref)
-        if self.params['vehicle_model'] == 'ackermann':
-            delta_base = float(current_state._x[3]) if len(current_state._x) >= 4 else float(self.last_steering)
-            delta_column = np.full((ref_arr.shape[0], 1), delta_base, dtype=float)
-            ref_arr = np.hstack([ref_arr, delta_column])
-        return ref_arr
+        return np.array(ref)
         
     def create_response(self, v: float, omega: float, success: bool) -> PsdfMpcResponse:
         """Create service response with velocity command."""

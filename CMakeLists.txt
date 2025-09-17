@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   tf2_ros
+  ackermann_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -116,7 +117,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES psdf_local_planner
-  CATKIN_DEPENDS message_runtime geometry_msgs nav_msgs std_msgs nav_core costmap_2d pluginlib tf tf2_ros
+  CATKIN_DEPENDS message_runtime geometry_msgs nav_msgs std_msgs nav_core costmap_2d pluginlib tf tf2_ros ackermann_msgs
 )
 
 ###########
@@ -183,6 +184,8 @@ install(FILES psdf_local_planner_plugin.xml
 ## Install Python node script
 catkin_install_python(PROGRAMS
   scripts/psdf_ros_node.py
+  scripts/carla_localization.py
+  scripts/twist_to_ackermann.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

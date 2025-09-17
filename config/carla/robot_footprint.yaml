@@ -1,4 +1,4 @@
-# Convex polygon footprint (meters) in base_link frame
+# Convex polygon footprint (meters) in ego_vehicle frame
 footprint:
   - [-0.31, -0.32]
   - [0.31, -0.32]

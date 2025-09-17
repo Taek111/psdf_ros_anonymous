@@ -171,21 +171,20 @@ class PSDFOptimizer:
         self.vehicle_model = vehicle_model
 
         if vehicle_model == 'ackermann':
-            nx = 4  # x, y, theta, steering
-            nu = 2  # speed, steering rate
+            nx = 3  # x, y, theta
+            nu = 2  # longitudinal speed, steering angle
             wheelbase = float(getattr(param, 'wheelbase', 1.0))
             self.wheelbase = wheelbase
             x = ca.MX.sym('x', nx)
             xdot = ca.MX.sym('xdot', nx)
             u = ca.MX.sym('u', nu)
             v = u[0]
-            delta = x[3]
+            delta = u[1]
             yaw_rate = v / wheelbase * ca.tan(delta)
             f_expl = ca.vertcat(
                 v * ca.cos(x[2]),
                 v * ca.sin(x[2]),
-                yaw_rate,
-                u[1]
+                yaw_rate
             )
             model_name = 'ackermann_psdf'
         else:
@@ -260,8 +259,8 @@ class PSDFOptimizer:
         # Set constraints
         # Input constraints
         if self.vehicle_model == 'ackermann':
-            lbu = np.array([param.vmin, param.steering_rate_min])
-            ubu = np.array([param.vmax, param.steering_rate_max])
+            lbu = np.array([param.vmin, param.steering_min])
+            ubu = np.array([param.vmax, param.steering_max])
         else:
             lbu = np.array([param.vmin, param.omegamin])
             ubu = np.array([param.vmax, param.omegamax])
@@ -270,14 +269,6 @@ class PSDFOptimizer:
         self.ocp.constraints.ubu = ubu
         self.ocp.constraints.idxbu = np.array([0, 1], dtype=np.int64)
 
-        if self.vehicle_model == 'ackermann':
-            self.ocp.constraints.idxbx = np.array([3], dtype=np.int64)
-            self.ocp.constraints.lbx = np.array([param.steering_min])
-            self.ocp.constraints.ubx = np.array([param.steering_max])
-            self.ocp.constraints.idxbx_e = np.array([3], dtype=np.int64)
-            self.ocp.constraints.lbx_e = np.array([param.steering_min])
-            self.ocp.constraints.ubx_e = np.array([param.steering_max])
-        
         # Initial state constraint
         if self.state is not None:
             self.ocp.constraints.x0 = self.state._x
@@ -587,10 +578,8 @@ class PSDFOptimizer:
                     'status': stats.get('return_status', 'unknown'),
                     'vehicle_model': self.vehicle_model
                 }
-                if self.vehicle_model == 'ackermann' and x_traj is not None and x_traj.shape[0] >= 4:
-                    info['steering_now'] = float(x_traj[3, 0])
-                    next_idx = 1 if x_traj.shape[1] > 1 else 0
-                    info['steering_next'] = float(x_traj[3, next_idx])
+                if self.vehicle_model == 'ackermann':
+                    info['steering_cmd'] = float(u_opt[1]) if len(u_opt) > 1 else 0.0
                 
                 return success, u_opt, x_traj, info
             else:
