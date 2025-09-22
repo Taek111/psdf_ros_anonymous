@@ -48,9 +48,17 @@ class PSDFRosNode:
         self.create_system()
         self.setup_optimizer()
         
+        # Goal-aware slowdown factors (updated per service call)
+        self.dynamic_v_scale = 1.0
+        self.dynamic_omega_scale = 1.0
+
         # Obstacle data
         self.edge_clusters = None
         self.last_obstacle_update = rospy.Time(0)
+
+        # Reference tracking state
+        self.last_path_fingerprint_ = None
+        self.last_ref_index_ = 0
         
         # Performance tracking
         self.solve_times = []
@@ -58,6 +66,10 @@ class PSDFRosNode:
         self.success_count = 0
         self.success_timestamps = []
         self.last_steering = float(self.params.get('initial_steering', 0.0))
+        # Velocity hysteresis state
+        self.last_v = 0.0
+        self.last_v_sign = 0  # -1, 0, +1
+        self.last_sign_change_time = rospy.Time(0)
         
         # TF buffer/listener for frame transforms
         self.tf_buffer = tf2_ros.Buffer()
@@ -107,8 +119,23 @@ class PSDFRosNode:
             'steering_max': rospy.get_param('~steering_max', 0.6),
             'initial_steering': rospy.get_param('~initial_steering', 0.0),
             'Q': rospy.get_param('~Q', [50.0, 50.0, 1.0]),
-            'R': rospy.get_param('~R', [0.2, 0.05])
+            'R': rospy.get_param('~R', [0.2, 0.05]),
+            # Goal-aware slowdown parameters
+            'terminal_weight': rospy.get_param('~terminal_weight', 2.0),
+            'approach_slowdown': rospy.get_param('~approach_slowdown', True),
+            'slowdown_radius': rospy.get_param('~slowdown_radius', 2.0),
+            'min_v_scale': rospy.get_param('~min_v_scale', 0.2),
+            'min_omega_scale': rospy.get_param('~min_omega_scale', 0.3),
+            # Hysteresis parameters for velocity sign
+            'v_sign_eps': rospy.get_param('~v_sign_eps', 0.2),  # [m/s]
+            'v_sign_min_interval': rospy.get_param('~v_sign_min_interval', 1.0)  # [s]
         }
+        # Backward-compat: accept '~wheel_base' as synonym
+        try:
+            wb_yaml = rospy.get_param('~wheel_base')
+            self.params['wheelbase'] = float(wb_yaml)
+        except Exception:
+            pass
         
         # Load robot footprint
         footprint_file = rospy.get_param('~footprint', '')
@@ -158,6 +185,11 @@ class PSDFRosNode:
         cfg.omegamin = self.params['omegamin']
         cfg.omegamax = self.params['omegamax']
         cfg.d_safe = self.params['d_safe']
+        # Emphasize terminal accuracy if requested
+        try:
+            cfg.terminal_weight = float(self.params.get('terminal_weight', getattr(cfg, 'terminal_weight', 1.0)))
+        except Exception:
+            pass
 
         self.optimizer = PSDFOptimizer()
         self.state_dim = state_dim
@@ -320,34 +352,136 @@ class PSDFRosNode:
                 marker.points.append(point2)
         return marker
 
+    def compute_goal_error(self, current_pose: PoseStamped, ref_path: Path):
+        """Compute distance and yaw error to the final pose of the given path.
+        Returns (dist, |yaw_error|). If path is empty, returns large defaults.
+        Assumes current_pose and ref_path are in the same frame (as provided by the local planner).
+        """
+        try:
+            if ref_path is None or not ref_path.poses:
+                return 1e6, math.pi
+            goal_pose = ref_path.poses[-1]
+            dx = float(goal_pose.pose.position.x) - float(current_pose.pose.position.x)
+            dy = float(goal_pose.pose.position.y) - float(current_pose.pose.position.y)
+            dist = math.hypot(dx, dy)
+            q1 = current_pose.pose.orientation
+            q2 = goal_pose.pose.orientation
+            _, _, yaw1 = euler_from_quaternion([q1.x, q1.y, q1.z, q1.w])
+            _, _, yaw2 = euler_from_quaternion([q2.x, q2.y, q2.z, q2.w])
+            yaw_err = math.atan2(math.sin(yaw2 - yaw1), math.cos(yaw2 - yaw1))
+            return float(dist), abs(float(yaw_err))
+        except Exception:
+            return 1e6, math.pi
+
+    def apply_velocity_hysteresis(self, v: float) -> float:
+        """Prevent rapid toggling of velocity sign.
+        - Keep previous sign within a small deadband |v| < v_sign_eps.
+        - Enforce minimum time between sign flips.
+        """
+        try:
+            eps = float(self.params.get('v_sign_eps', 0.2))
+            min_interval = float(self.params.get('v_sign_min_interval', 1.0))
+        except Exception:
+            eps, min_interval = 0.2, 1.0
+
+        now = rospy.Time.now()
+        last_sign = getattr(self, 'last_v_sign', 0)
+        last_t = getattr(self, 'last_sign_change_time', rospy.Time(0))
+
+        # Proposed sign with deadband
+        if v > eps:
+            prop_sign = 1
+        elif v < -eps:
+            prop_sign = -1
+        else:
+            prop_sign = 0
+
+        # Within deadband: keep previous sign if any
+        if prop_sign == 0 and last_sign != 0:
+            v = abs(float(v)) * float(last_sign)
+            self.last_v = float(v)
+            return float(v)
+
+        # Decide sign change acceptance
+        if last_sign == 0:
+            if prop_sign != 0:
+                self.last_v_sign = prop_sign
+                self.last_sign_change_time = now
+        elif prop_sign != 0 and prop_sign != last_sign:
+            dt = (now - last_t).to_sec() if now >= last_t else 1e9
+            if dt < min_interval:
+                # Reject sign flip: keep previous sign
+                v = abs(float(v)) * float(last_sign)
+                prop_sign = last_sign
+            else:
+                # Accept sign flip
+                self.last_v_sign = prop_sign
+                self.last_sign_change_time = now
+
+        self.last_v = float(v)
+        return float(v)
+
     def handle_service(self, req):
         """Handle PSDF-MPC service request."""
         start_time = time.time()
         
         try:
+            # Goal-aware slowdown scaling
+            v_scale = 1.0
+            omega_scale = 1.0
+            if self.params.get('approach_slowdown', True):
+                try:
+                    dist, yaw_err = self.compute_goal_error(req.current_pose, req.reference_path)
+                except Exception:
+                    dist, yaw_err = 1e6, math.pi
+                r = max(float(self.params.get('slowdown_radius', 2.0)), 1e-3)
+                v_scale = max(float(self.params.get('min_v_scale', 0.2)), min(1.0, dist / r))
+                omega_scale = max(float(self.params.get('min_omega_scale', 0.3)), min(1.0, dist / r))
+            # For Ackermann, only slow down speed near goal; keep steering range intact
+            is_ack = (self.params.get('vehicle_model', 'differential') == 'ackermann')
+            omega_scale_eff = 1.0 if is_ack else float(omega_scale)
+            # Store dynamic scales (used by reference sampling)
+            self.dynamic_v_scale = float(v_scale)
+            self.dynamic_omega_scale = float(omega_scale_eff)
+            # Apply scaled control limits to the optimizer (runtime bounds)
+            try:
+                self.optimizer.apply_slowdown(v_scale=v_scale, omega_scale=omega_scale_eff)
+            except Exception as ex:
+                rospy.logwarn_throttle(1.0, f"[PSDFRosNode] apply_slowdown failed: {ex}")
+
+            # Reset reference progress if a new path arrives
+            self.refresh_path_progress(req.reference_path)
+
             # Extract current state and build reference trajectory
             state = self.extract_state(req.current_pose, req.current_velocity)
             ref_trajectory = self.build_reference_trajectory(req.reference_path, state)
             
             # Solve optimization problem
             success, u_opt, x_traj, info = self.optimizer.solve(state, ref_trajectory)
+            
 
             vehicle_model = self.params['vehicle_model']
             if vehicle_model == 'ackermann':
                 speed = float(u_opt[0]) if u_opt else 0.0
                 steering = float(u_opt[1]) if len(u_opt) > 1 else self.last_steering
                 steering = float(np.clip(steering, self.params['steering_min'], self.params['steering_max']))
+                # Apply velocity sign hysteresis on speed
+                speed = self.apply_velocity_hysteresis(speed)
                 wheelbase = max(float(self.params['wheelbase']), 1e-3)
                 omega = speed / wheelbase * math.tan(steering)
                 v = speed
                 if success:
                     self.last_steering = steering
-                resp = self.create_response(v, omega, success)
-                resp.cmd_vel.twist.angular.y = steering
+                # For Ackermann, publish steering angle in angular.z (delta), not yaw rate.
+                resp = self.create_response(v, steering, success)
+                # Clear auxiliary angular fields for clarity
+                resp.cmd_vel.twist.angular.y = 0.0
                 resp.cmd_vel.twist.angular.x = 0.0
                 rospy.loginfo_throttle(1.0, f"[PSDF_SERVICE] Ackermann response: v={v:.3f}, delta={steering:.3f}, omega={omega:.3f}, success={success}")
             else:
                 v = float(u_opt[0]) if u_opt else 0.0
+                # Apply velocity sign hysteresis for differential model as well
+                v = self.apply_velocity_hysteresis(v)
                 omega = float(u_opt[1]) if len(u_opt) > 1 else 0.0
                 resp = self.create_response(v, omega, success)
                 rospy.loginfo_throttle(1.0, f"[PSDF_SERVICE] Created response: v={v}, omega={omega}, success={success}")
@@ -431,10 +565,15 @@ class PSDFRosNode:
             v = float(twist.linear.x) if twist is not None else 0.0
             omega = float(twist.angular.z) if twist is not None else 0.0
             delta = float(self.last_steering)
-            if twist is not None and abs(v) > 1e-3:
-                try:
-                    delta = math.atan(wheelbase * omega / max(v, 1e-3))
-                except Exception:
+            if twist is not None:
+                if abs(v) > 1e-3:
+                    try:
+                        ratio = wheelbase * omega / v
+                        delta = math.atan(ratio)
+                    except Exception:
+                        delta = float(self.last_steering)
+                else:
+                    # Velocity too small to recover steering reliably; keep previous value.
                     delta = float(self.last_steering)
             delta = float(np.clip(delta, self.params['steering_min'], self.params['steering_max']))
             self.last_steering = delta
@@ -448,6 +587,30 @@ class PSDFRosNode:
         else:
             return State(np.array([pos.x, pos.y, yaw]), np.array([twist.linear.x, twist.angular.z]))
         
+    def make_path_fingerprint(self, path: Path):
+        """Create a lightweight fingerprint so we notice new incoming paths."""
+        try:
+            if path is None or not getattr(path, 'poses', None):
+                return None
+            first = path.poses[0].pose
+            last = path.poses[-1].pose
+            return (
+                len(path.poses),
+                round(float(first.position.x), 4),
+                round(float(first.position.y), 4),
+                round(float(last.position.x), 4),
+                round(float(last.position.y), 4),
+            )
+        except Exception:
+            return None
+
+    def refresh_path_progress(self, path: Path) -> None:
+        """Reset cached indices when the planner hands us a different path."""
+        fingerprint = self.make_path_fingerprint(path)
+        if fingerprint != self.last_path_fingerprint_:
+            self.last_path_fingerprint_ = fingerprint
+            self.last_ref_index_ = 0
+
     def build_reference_trajectory(self, path: Path, current_state: State) -> np.ndarray:
         """Build reference trajectory for MPC horizon.
 
@@ -455,6 +618,9 @@ class PSDFRosNode:
         distance to ensure the N-step horizon covers a reasonable lookahead
         length even when the input path has very high resolution.
         """
+        vehicle_model = self.params.get('vehicle_model', 'differential')
+        use_path_yaw = vehicle_model == 'ackermann'
+
         if not path.poses:
             # If no path poses, create reference trajectory from current state
             return np.tile(current_state._x, (self.params['horizon'], 1))
@@ -462,14 +628,44 @@ class PSDFRosNode:
         # Build arrays of XY from incoming path and start from the closest point to current pose
         xs_all = np.array([p.pose.position.x for p in path.poses], dtype=float)
         ys_all = np.array([p.pose.position.y for p in path.poses], dtype=float)
+        yaws_all = None
+        if use_path_yaw:
+            try:
+                yaw_list = []
+                for pose_stamped in path.poses:
+                    orient = pose_stamped.pose.orientation
+                    _, _, yaw = euler_from_quaternion([orient.x, orient.y, orient.z, orient.w])
+                    yaw_list.append(float(yaw))
+                yaws_all = np.array(yaw_list, dtype=float)
+                if yaws_all.size:
+                    yaws_all = np.unwrap(yaws_all)
+            except Exception as ex:
+                rospy.logwarn_throttle(1.0, f"[PSDFRosNode] Failed to extract yaw from path: {ex}")
+                yaws_all = None
+                use_path_yaw = False
+        if use_path_yaw and (yaws_all is None or yaws_all.size != xs_all.size):
+            rospy.logwarn_throttle(1.0, "[PSDFRosNode] Path yaw count mismatch; falling back to geometric heading")
+            use_path_yaw = False
+        if xs_all.size == 0:
+            return np.tile(current_state._x, (self.params['horizon'], 1))
+
         # Find nearest path index to current pose to anchor the horizon
         dx_all = xs_all - float(current_state._x[0])
         dy_all = ys_all - float(current_state._x[1])
-        k0 = int(np.argmin(dx_all*dx_all + dy_all*dy_all)) if xs_all.size > 0 else 0
+        nearest_index = int(np.argmin(dx_all * dx_all + dy_all * dy_all))
+
+        # Enforce monotonic progress along the path
+        last_index = min(max(int(self.last_ref_index_), 0), xs_all.size - 1)
+        k0 = max(nearest_index, last_index)
+        k0 = min(k0, xs_all.size - 1)
+        self.last_ref_index_ = k0
+
         xs = xs_all[k0:]
         ys = ys_all[k0:]
         M = len(xs)
-        
+        yaws = yaws_all[k0:] if use_path_yaw and yaws_all is not None else None
+        has_path_yaw = use_path_yaw and yaws is not None and len(yaws) > 0  # Ackermann: track provided heading
+
         # Cumulative arc-length along the path
         dxy = np.sqrt(np.diff(xs, prepend=xs[0])**2 + np.diff(ys, prepend=ys[0])**2)
         dxy[0] = 0.0
@@ -478,9 +674,11 @@ class PSDFRosNode:
         N = int(self.params['horizon'])
         dt = float(self.params['dt'])
         vmax = float(self.params.get('vmax', 1.0))
+        v_scale = float(getattr(self, 'dynamic_v_scale', 1.0))
         ref_ds_param = float(self.params.get('ref_ds', 0.0))
-        # Choose target spacing: user param or vmax*dt, with a small minimum
-        ds = ref_ds_param if ref_ds_param > 0.0 else vmax * dt
+        # Choose target spacing: user param or (vmax * slowdown) * dt, with a small minimum
+        ds_nom = vmax * v_scale * dt
+        ds = ref_ds_param if ref_ds_param > 0.0 else ds_nom
         ds = max(ds, 0.05)
         rospy.loginfo_throttle(1.0, f"Target spacing: {ds:.2f}m")
         # Target arc-lengths for each horizon step
@@ -491,13 +689,16 @@ class PSDFRosNode:
         for st in s_targets:
             if st >= s[-1]:
                 xi, yi = xs[-1], ys[-1]
-                # Heading: use last segment or keep previous if not available
-                if M >= 2:
-                    dxl = xs[-1] - xs[-2]
-                    dyl = ys[-1] - ys[-2]
-                    thi = np.arctan2(dyl, dxl) if (dxl != 0.0 or dyl != 0.0) else (ref[-1][2] if ref else current_state._x[2])
+                if has_path_yaw:
+                    thi = float(yaws[-1])
                 else:
-                    thi = ref[-1][2] if ref else current_state._x[2]
+                    # Heading: use last segment or keep previous if not available
+                    if M >= 2:
+                        dxl = xs[-1] - xs[-2]
+                        dyl = ys[-1] - ys[-2]
+                        thi = np.arctan2(dyl, dxl) if (dxl != 0.0 or dyl != 0.0) else (ref[-1][2] if ref else current_state._x[2])
+                    else:
+                        thi = ref[-1][2] if ref else current_state._x[2]
             else:
                 # Find segment index such that s[i] <= st < s[i+1]
                 i = np.searchsorted(s, st, side='right') - 1
@@ -509,7 +710,13 @@ class PSDFRosNode:
                     alpha = (st - s[i]) / seg_len
                 xi = xs[i] + alpha * (xs[i+1] - xs[i])
                 yi = ys[i] + alpha * (ys[i+1] - ys[i])
-                thi = np.arctan2(ys[i+1] - ys[i], xs[i+1] - xs[i])
+                if has_path_yaw:
+                    if M >= 2:
+                        thi = float((1.0 - alpha) * yaws[i] + alpha * yaws[i+1])
+                    else:
+                        thi = float(yaws[i])
+                else:
+                    thi = np.arctan2(ys[i+1] - ys[i], xs[i+1] - xs[i])
             ref.append(np.array([xi, yi, thi], dtype=float))
 
         # 1) Unwrap theta sequence to remove +/-pi discontinuities
@@ -522,7 +729,14 @@ class PSDFRosNode:
                 two_pi = 2.0 * np.pi
                 k = int(np.round((theta_curr - ths_unwrapped[0]) / two_pi))
                 ths_aligned = ths_unwrapped + k * two_pi
-                # Write back
+                # --- add: π-정렬 (앞/뒤 모호성 해소) ---
+                def angdiff(a, b):
+                    e = a - b
+                    return np.arctan2(np.sin(e), np.cos(e))
+                if not has_path_yaw:
+                    # θ 또는 θ+π 중 현재 자세에 더 가까운 가지 선택
+                    if abs(angdiff(theta_curr, ths_aligned[0] + np.pi)) < abs(angdiff(theta_curr, ths_aligned[0])):
+                        ths_aligned = ths_aligned + np.pi
                 for idx in range(len(ref)):
                     ref[idx][2] = float(ths_aligned[idx])
         except Exception as ex:
@@ -560,14 +774,17 @@ class PSDFRosNode:
 
         return np.array(ref)
         
-    def create_response(self, v: float, omega: float, success: bool) -> PsdfMpcResponse:
-        """Create service response with velocity command."""
+    def create_response(self, v: float, angular_z: float, success: bool) -> PsdfMpcResponse:
+        """Create service response with velocity command.
+        - Differential model: angular_z is yaw rate (omega).
+        - Ackermann model: angular_z is steering angle (delta).
+        """
         resp = PsdfMpcResponse()
         resp.cmd_vel = TwistStamped()
         resp.cmd_vel.header.stamp = rospy.Time.now()
         resp.cmd_vel.header.frame_id = self.params['global_frame']
         resp.cmd_vel.twist.linear.x = float(v)
-        resp.cmd_vel.twist.angular.z = float(omega)
+        resp.cmd_vel.twist.angular.z = float(angular_z)
         resp.success = success
         return resp
 

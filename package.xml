@@ -64,6 +64,7 @@
   <build_depend>laser_line_extraction</build_depend>
   <build_depend>costmap_converter</build_depend>
   <build_depend>ackermann_msgs</build_depend>
+  <build_depend>carla_msgs</build_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
     <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>nav_core</build_export_depend>
@@ -77,6 +78,7 @@
   <build_export_depend>laser_line_extraction</build_export_depend>
   <build_export_depend>costmap_converter</build_export_depend>
   <build_export_depend>ackermann_msgs</build_export_depend>
+  <build_export_depend>carla_msgs</build_export_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
     <exec_depend>nav_msgs</exec_depend>
@@ -91,6 +93,7 @@
   <exec_depend>laser_line_extraction</exec_depend>
   <exec_depend>costmap_converter</exec_depend>
   <exec_depend>ackermann_msgs</exec_depend>
+  <exec_depend>carla_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

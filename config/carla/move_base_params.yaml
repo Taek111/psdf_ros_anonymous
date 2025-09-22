@@ -5,17 +5,43 @@ controller_patience: 15.0
 conservative_reset_dist: 3.0
 recovery_behavior_enabled: false
 
-# 글로벌 플래너를 SBPL로
-base_global_planner: "SBPLLatticePlanner"
+# 글로벌 플래너를 Hybrid A*로
+base_global_planner: "hybrid_a_star/HybridAstarGlobalPlanner"
 
-# SBPL 파라미터
-SBPLLatticePlanner:
-  planner_type: "ARAPlanner"            # or "ADPlanner"
-  allocated_time: 5.0
-  initial_epsilon: 2.0
-  environment_type: "XYThetaLattice"    # 이 값만 지원됨
-  forward_search: true
-  primitive_filename: "/home/taek111/catkin_ws/src/psdf_ros/config/carla/ackermann_05_16.mprim"
-  force_scratch_limit: 500
-  nominalvel_mpersecs: 6.0              # 글로벌 힌트(속도 스케일)
-  timetoturn45degsinplace_secs: 0.30
+hybrid_a_star/HybridAstarGlobalPlanner:
+  # Robot footprint file (used to derive L/W and rear axle distance)
+  robot_footprint_yaml: "/home/taek111/catkin_ws/src/psdf_ros/config/carla/robot_footprint.yaml"
+  # Frames and grids
+  global_frame: map
+  map_grid_resolution: 0.05
+  state_grid_resolution: 0.10
+  grid_size_phi: 72
+
+  # Vehicle and motion primitives
+  wheel_base: 3.005
+  veh_length: 4.5
+  veh_width: 1.75
+  steering_angle: 35.0
+  steering_angle_discrete_num: 5
+  segment_length: 0.8
+  segment_length_discrete_num: 8
+  steering_penalty: 1.05
+  reversing_penalty: 2.0
+  steering_change_penalty: 1.5
+  shot_distance: 4.0
+
+  # Policy
+  lethal_cost_threshold: 254
+  allow_unknown: true
+  downsample_step: 1
+  use_smoothing: false
+  tolerance_dist: 0.2
+  tolerance_yaw: 0.2
+  timeout_ms: 5000
+  snap_to_free: true
+  snap_max_radius: 10
+  max_search_iterations: 200000
+
+PSDFLocalPlanner:
+  goal_tolerance_xy: 0.40   # [m]
+  goal_tolerance_yaw: 0.20  # [rad]

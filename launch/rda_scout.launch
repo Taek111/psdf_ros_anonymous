@@ -1,5 +1,5 @@
 <launch>     
-    <arg name="rda_configure_file" default="$(find psdf_ros)/config/rda_planner_scout.yaml"/>
+    <arg name="rda_configure_file" default="$(find psdf_ros)/config/scout/rda_planner_scout.yaml"/>
 
     <node name='rda_control' pkg="rda_ros" type="rda_node.py" output="screen">
         <remap from="/rda_cmd_vel" to="/cmd_vel"/>

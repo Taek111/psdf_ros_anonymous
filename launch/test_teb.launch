@@ -6,7 +6,7 @@
     <!-- Arguments -->
     <arg name="robot_namespace" default="/"/>
     <arg name="world_name" default="$(find psdf_ros)/worlds/2d_maze_scaled.world"/>
-    <arg name="config_dir" default="$(find psdf_ros)/config" />
+    <arg name="config_dir" default="$(find psdf_ros)/config/scout" />
     <arg name="use_rviz" default="true" />
     <arg name="use_move_base" default="true" />
     <arg name="x" default="0.0"/>
@@ -50,16 +50,16 @@
             <param name="base_global_planner" value="navfn/NavfnROS" />
             
             <!-- Basic move_base parameters -->
-            <rosparam file="$(find psdf_ros)/config/move_base_params.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/move_base_params.yaml" command="load" />
             
             <!-- Costmap parameters -->
-            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-            <rosparam file="$(find psdf_ros)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-            <rosparam file="$(find psdf_ros)/config/local_costmap_params.yaml" command="load" />
-            <rosparam file="$(find psdf_ros)/config/global_costmap_params.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(arg config_dir)/local_costmap_params.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/global_costmap_params.yaml" command="load" />
 
             <!-- TEB local planner parameters -->
-            <rosparam file="$(find psdf_ros)/config/teb_local_planner.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/teb_local_planner.yaml" command="load" />
             
             <!-- Remap cmd_vel to cmd_vel_fake -->
             <remap from="cmd_vel" to="/cmd_vel_fake" />

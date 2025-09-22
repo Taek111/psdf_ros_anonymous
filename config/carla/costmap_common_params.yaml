@@ -3,8 +3,8 @@
 global_frame: map
 robot_base_frame: ego_vehicle
 # Obstacle layer
-footprint: [[-0.31, -0.32], [0.31, -0.32], [0.31, 0.32], [-0.31, 0.32]]
-
+footprint: [[-1.5, -1.0815], [3.8985, -1.0815], [3.8985, 1.0815], [-1.5, 1.0815]]
+footprint_padding: 0.2 
 # Map type and resolution
 map_type: costmap
 transform_tolerance: 0.2
@@ -26,12 +26,13 @@ obstacle_layer:
   obstacle_range: 50.0
   raytrace_range: 100.0
   observation_sources: scan
+  footprint_clearing_enabled: true
   scan:
     data_type: LaserScan
     topic: /scan
     marking: true
-    clearing: false
-    min_obstacle_height: 0.0
+    clearing: true
+    min_obstacle_height: 0.05
     max_obstacle_height: 2.0
     inf_is_valid: false
 

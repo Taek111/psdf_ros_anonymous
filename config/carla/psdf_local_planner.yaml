@@ -1,20 +1,23 @@
+vehicle_model: "ackermann"
+
 # Parameters for PSDF-MPC local planner (unified from launch)
 horizon: 15
 dt: 0.1
 # Target spacing [m] between reference points used by MPC
-ref_ds: 0.1
+ref_ds: 0.2
 
 # Costs
-Q: [30.0, 30.0, 1.0]
-R: [1.0, 1.0]
-terminal_weight: 1.0
+Q: [10.0, 10.0, 2.0]
+R: [1.0, 5.0]
+terminal_weight: 0.1
 
 # Safety and limits
 d_safe: 0.01
 vmax: 1.0
 vmin: -1.0
-omegamax: 1.4 
-omegamin: -1.4
+wheel_base: 3.005
+steering_min: -1.0
+steering_max: 1.0
 
 # Obstacle/PSDF parameters
 max_clusters: 20
@@ -25,6 +28,9 @@ line_segment_topic: "/line_segments"
 # Frames
 robot_base: "ego_vehicle"
 global_frame: "map"
+
+# Scale for slowdown
+min_v_scale : 0.8
 
 # General
 service_timeout: 2.0

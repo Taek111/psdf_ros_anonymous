@@ -105,6 +105,12 @@ class PSDFOptimizer:
         
         # Store files to cleanup
         self._temp_files = []
+        
+        # Store nominal input bounds for runtime scaling
+        self._nominal_lbu = None
+        self._nominal_ubu = None
+        # Track last applied slowdown scales (v_scale, omega_or_steer_scale)
+        self._last_slowdown = (1.0, 1.0)
 
     def cleanup(self):
         """Clean up temporary files and reset state"""
@@ -163,7 +169,11 @@ class PSDFOptimizer:
             # Set terminal cost
             yref_e = reference_trajectory[-1, :]
             # Use terminal reference key explicitly
-            self.solver.set(self.N, "yref", yref_e)
+            try:
+                self.solver.set(self.N, "yref_e", yref_e)
+            except Exception:
+                # Fallback for older acados interfaces
+                self.solver.set(self.N, "yref", yref_e)
 
     def create_model(self, param):
         """Create the acados model for the robot dynamics"""
@@ -268,16 +278,15 @@ class PSDFOptimizer:
         self.ocp.constraints.lbu = lbu
         self.ocp.constraints.ubu = ubu
         self.ocp.constraints.idxbu = np.array([0, 1], dtype=np.int64)
+        # Keep copies for runtime scaling
+        self._nominal_lbu = lbu.copy()
+        self._nominal_ubu = ubu.copy()
 
         # Initial state constraint
         if self.state is not None:
             self.ocp.constraints.x0 = self.state._x
         else:
             self.ocp.constraints.x0 = np.zeros(nx)
-        
-        # Add input derivative constraints (rate constraints)
-        # This requires setting up a custom constraint in acados
-        # For simplicity, we'll use soft constraints via cost function
         
         # Set options
         self.ocp.solver_options.qp_solver = param.qp_solver
@@ -310,6 +319,40 @@ class PSDFOptimizer:
         self.variables["u"] = "u"
         self.solver = AcadosOcpSolver(self.ocp, json_file=self.json_filename)
         self._temp_files.append(self.json_filename)
+
+    def apply_slowdown(self, v_scale: float = 1.0, omega_scale: float = 1.0):
+        """Apply runtime slowdown by scaling input bounds across all stages.
+        - For differential model: scales v and omega bounds.
+        - For ackermann model: scales speed (u0) and steering angle (u1).
+        """
+        try:
+            if self.solver is None or self._nominal_lbu is None or self._nominal_ubu is None:
+                return
+            # Avoid redundant updates
+            if (abs(v_scale - self._last_slowdown[0]) < 1e-6 and
+                abs(omega_scale - self._last_slowdown[1]) < 1e-6):
+                return
+
+            lbu_scaled = self._nominal_lbu.copy()
+            ubu_scaled = self._nominal_ubu.copy()
+
+            # Scale linear speed bounds (index 0)
+            lbu_scaled[0] = float(self._nominal_lbu[0]) * float(v_scale)
+            ubu_scaled[0] = float(self._nominal_ubu[0]) * float(v_scale)
+
+            # Scale turning bounds (index 1): omega for differential, steering for ackermann
+            lbu_scaled[1] = float(self._nominal_lbu[1]) * float(omega_scale)
+            ubu_scaled[1] = float(self._nominal_ubu[1]) * float(omega_scale)
+
+            # Apply to all stages 0..N-1
+            for i in range(int(self.N)):
+                self.solver.set(i, "lbu", lbu_scaled)
+                self.solver.set(i, "ubu", ubu_scaled)
+
+            self._last_slowdown = (float(v_scale), float(omega_scale))
+            rospy.loginfo_throttle(1.0, f"[MPC_OPTIMIZER] Applied slowdown: v_scale={v_scale:.2f}, turn_scale={omega_scale:.2f}")
+        except Exception as ex:
+            rospy.logwarn_throttle(1.0, f"[MPC_OPTIMIZER] apply_slowdown failed: {ex}")
 
     def update_obstacles(self, obstacles_geo): 
         """Update the obstacles in the PSDF wrapper (legacy method)"""
@@ -580,7 +623,7 @@ class PSDFOptimizer:
                 }
                 if self.vehicle_model == 'ackermann':
                     info['steering_cmd'] = float(u_opt[1]) if len(u_opt) > 1 else 0.0
-                
+            
                 return success, u_opt, x_traj, info
             else:
                 rospy.logwarn("[MPC_OPTIMIZER] Solve failed: No solution found")
