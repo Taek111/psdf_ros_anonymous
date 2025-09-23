@@ -1,0 +1,5 @@
+<launch>
+    <node name="goal_publisher" pkg="psdf_ros" type="goal_publisher.py" output="screen">
+        <param name="slot_id" value="3-9"/>
+    </node>
+</launch>

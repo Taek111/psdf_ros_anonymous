@@ -78,6 +78,9 @@ class PSDFRosNode:
         # Subscribe to per-segment input (laser_line_extraction output)
         self.line_seg_sub = rospy.Subscriber(
             self.params['line_segment_topic'], LineSegmentList, self.line_segment_cb, queue_size=10)
+        # Subscribe to pre-built obstacle clusters (already in global frame)
+        self.ec_sub = rospy.Subscriber(
+            self.params['obstacle_topic'], EdgeClusters, self.edge_clusters_cb, queue_size=10)
         self.marker_pub = rospy.Publisher('edge_clusters_marker', Marker, queue_size=10)
         # Debug publisher: horizon-limited reference path used by MPC
         self.ref_pub = rospy.Publisher('psdf_ref_path', Path, queue_size=1, latch=True)
@@ -100,7 +103,7 @@ class PSDFRosNode:
             # Reference sampling: target spacing between ref points [m].
             # If <= 0, it will default to vmax * dt, clamped by a small minimum.
             'ref_ds': rospy.get_param('~ref_ds', 0.0),
-            'obstacle_topic': rospy.get_param('~obstacle_topic', '/detected_edges'),
+            'obstacle_topic': rospy.get_param('~obstacle_topic', '/obstacles'),
             'line_segment_topic': rospy.get_param('~line_segment_topic', '/line_segments'),
             'robot_base': rospy.get_param('~robot_base', 'base_link'),
             'global_frame': rospy.get_param('~global_frame', 'odom'),
@@ -199,6 +202,7 @@ class PSDFRosNode:
         # Create a dummy reference trajectory and initial obstacles for setup
         initial_ref = np.zeros((cfg.horizon, state_dim))
         initial_obstacles = []  # Empty list for now
+        print(f"in cfg file.. max_edges_per_cluster: {cfg.max_edges_per_cluster}, max_clusters: {cfg.max_clusters}, wheel_base: {cfg.wheelbase}")
         self.optimizer.setup(cfg, self.system, initial_ref, initial_obstacles)
         rospy.loginfo_throttle(1.0, "MPC optimizer (Acados) initialized")
     
@@ -292,6 +296,18 @@ class PSDFRosNode:
             self.marker_pub.publish(marker)
         except Exception as e:
             rospy.logerr(f"[PSDFRosNode] Failed to process LineSegmentList: {e}")
+
+    def edge_clusters_cb(self, msg: EdgeClusters):
+        """Callback for EdgeClusters input already in global frame (e.g., map).
+        Performs a direct update of the optimizer without frame transforms.
+        """
+        try:
+            clusters_A, clusters_B = self.convert_ros_to_tensors(msg)
+            self.optimizer.psdf_wrapper.update_edge_clusters(clusters_A, clusters_B)
+            self.edge_clusters = msg
+            self.last_obstacle_update = rospy.Time.now()
+        except Exception as e:
+            rospy.logerr(f"[PSDFRosNode] Failed to process EdgeClusters: {e}")
 
     def convert_ros_to_tensors(self, msg: EdgeClusters):
         """Convert ROS EdgeClusters message to PyTorch tensors."""

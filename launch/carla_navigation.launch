@@ -58,19 +58,16 @@
             <remap from="scan" to="/scan" />
         </node>
     </group>
-    
-    <!-- Optional: Publish map->ego_vehicle TF via CARLA API (disable if another source publishes TF) -->
-    <group if="$(arg use_carla_localization)">
-        <node pkg="psdf_ros" type="carla_localization.py" name="carla_localization" output="screen">
-            <param name="host" value="$(arg host)"/>
-            <param name="port" value="$(arg port)"/>
-            <param name="role_name" value="ego_vehicle"/>
-            <param name="map_frame" value="map"/>
-            <param name="base_frame" value="ego_vehicle"/>
-            <param name="publish_rate" value="20.0"/>
-        </node>
-    </group>
 
+    <!-- 4. Obstacle detector -->
+    <node pkg="psdf_ros" type="carla_obstacle_detector.py" name="carla_obstacle_detector" output="screen">
+        <param name="frame_id" value="map" />
+        <param name="edge_clusters_topic" value="/obstacles" />
+        <param name="marker_topic" value="/carla/edge_clusters_markers" />
+        <param name="marker_line_width" value="0.1" />
+        <param name="host" value="127.0.0.1" />
+        <param name="port" value="2000" />
+    </node>
 
     <!-- 6. Visualization -->
     <group if="$(arg use_rviz)">

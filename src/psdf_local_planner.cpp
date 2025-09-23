@@ -59,6 +59,7 @@ bool PSDFLocalPlanner::setPlan(const std::vector<geometry_msgs::PoseStamped>& or
   }
   
   global_plan_ = orig_global_plan;
+  last_set_plan_time_ = ros::Time::now();
   goal_reached_ = false;
   
   if (global_plan_.empty()) {
@@ -76,7 +77,7 @@ bool PSDFLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
     cmd_vel = geometry_msgs::Twist();
     return false;
   }
-  
+
   // Ensure service is available; re-check using wall time to handle late startup
   if (!service_availiable_) {
     // Try to (re)discover service without blocking move_base

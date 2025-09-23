@@ -1,6 +1,6 @@
 controller_frequency: 10.0
 planner_frequency: 0.2
-planner_patience: 10.0
+planner_patience: 20.0
 controller_patience: 15.0
 conservative_reset_dist: 3.0
 recovery_behavior_enabled: false
@@ -10,7 +10,7 @@ base_global_planner: "hybrid_a_star/HybridAstarGlobalPlanner"
 
 HybridAstarGlobalPlanner:
   # Robot footprint file (used to derive L/W and rear axle distance)
-  robot_footprint_yaml: "/home/taek111/catkin_ws/src/psdf_ros/config/carla/robot_footprint.yaml"
+  robot_footprint_yaml: "/home/taekwon/catkin_ws/src/psdf_ros/config/carla/robot_footprint.yaml"
   # Frames and grids
   global_frame: map
   map_grid_resolution: 0.05
@@ -37,11 +37,11 @@ HybridAstarGlobalPlanner:
   use_smoothing: false
   tolerance_dist: 0.2
   tolerance_yaw: 0.2
-  timeout_ms: 5000
+  timeout_ms: 20000
   snap_to_free: true
   snap_max_radius: 10
-  max_search_iterations: 200000
+  max_search_iterations: 400000
 
 PSDFLocalPlanner:
-  goal_tolerance_xy: 0.40   # [m]
-  goal_tolerance_yaw: 0.20  # [rad]
+  goal_tolerance_xy: 0.2   # [m]
+  goal_tolerance_yaw: 0.10  # [rad]

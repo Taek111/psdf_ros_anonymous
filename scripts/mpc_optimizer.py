@@ -61,6 +61,9 @@ class PSDFOptimizerConfig:
         self.detection_safety_margin = 0.05 # safety margin for obstacle caps [m]
         self.detection_frequency = 10.0     # obstacle detection frequency [Hz]
 
+        self.max_clusters = 20
+        self.max_edges_per_cluster = 4
+
     @staticmethod
     def from_yaml(file_path: str):
         """Load configuration from a YAML file."""
@@ -475,7 +478,7 @@ class PSDFOptimizer:
             print("Setting up PSDF optimizer...")
             # Setup the OCP Problem
             self.setup_ocp(param, reference_trajectory)
-            self.initialize_ped_model(system, obstacles, E_max=100, device="cpu") # Set the PED model in the OCP
+            self.initialize_ped_model(system, obstacles, E_max=param.max_edges_per_cluster, K_max=param.max_clusters, device="cpu") # Set the PED model in the OCP
             self.add_obstacle_avoidance_constraint(param, system, obstacles)
             # Create the acados solver
             self.create_solver()

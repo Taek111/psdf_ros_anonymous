@@ -43,6 +43,7 @@ private:
   
   std::vector<geometry_msgs::PoseStamped> global_plan_;
   geometry_msgs::Twist current_vel_;
+  ros::Time last_set_plan_time_;
   
   // Parameters
   std::string service_name_;

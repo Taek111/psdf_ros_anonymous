@@ -38,9 +38,10 @@
         <param name="host" value="$(arg host)"/>
         <param name="port" value="$(arg port)"/>
         <param name="unload_parked_layer" value="true"/>
-        <param name="num_static" value="1"/>
+        <param name="num_random_vehicles" value="52"/>
         <param name="exit_after_spawn" value="true"/>
         <param name="world_ready_timeout" value="30.0"/>
+        <param name="seed" value="25"/>
     </node>
 
     <!-- 4) PointCloud2 → LaserScan (for 2D planners) -->

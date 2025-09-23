@@ -30,12 +30,11 @@ class GoalPublisher:
         action_wait_timeout = float(rospy.get_param("~action_wait_timeout", 5.0))
 
         row, column = self._parse_slot_id(slot_id)
-        yaw_deg = self._resolve_yaw(row)
-        yaw_override = self._get_optional_param("~yaw_deg")
-        if yaw_override is not None:
-            yaw_deg = float(yaw_override)
+        base_yaw_deg = float(rospy.get_param("~yaw_deg", 180.0))
+        # Apply row-dependent yaw and coordinate offsets
+        yaw_deg, dx, dy = self._row_adjustments(row, base_yaw_deg)
 
-        pose = self._build_pose(frame_id, row, column, yaw_deg)
+        pose = self._build_pose(frame_id, row, column, yaw_deg, dx, dy)
 
         publisher = rospy.Publisher(goal_topic, PoseStamped, queue_size=1, latch=True)
         rospy.sleep(0.1)
@@ -51,11 +50,6 @@ class GoalPublisher:
 
         if send_action_goal:
             self._send_action_goal(pose, action_wait_timeout)
-
-    def _get_optional_param(self, name: str) -> Optional[float]:
-        if rospy.has_param(name):
-            return float(rospy.get_param(name))
-        return None
 
     def _parse_slot_id(self, slot_id: str) -> Tuple[int, int]:
         try:
@@ -74,10 +68,20 @@ class GoalPublisher:
 
         return row, column
 
-    def _resolve_yaw(self, row: int) -> float:
-        return 180.0 if row % 2 == 0 else 0.0
+    def _row_adjustments(self, row: int, base_yaw_deg: float) -> Tuple[float, float, float]:
+        """Return (yaw_deg, dx, dy) adjustments based on parking row.
 
-    def _build_pose(self, frame_id: str, row: int, column: int, yaw_deg: float) -> PoseStamped:
+        - Rows 1 & 3: yaw = 0 deg, x -= 1.5025
+        - Rows 2 & 4: yaw = 180 deg, y += 1.5025
+        - Other rows: use base_yaw_deg, no offset
+        """
+        if row in (1, 3):
+            return 0.0, -1.5025, 0.0
+        if row in (2, 4):
+            return 180.0, 1.5025,0.0
+        return base_yaw_deg, 0.0, 0.0
+
+    def _build_pose(self, frame_id: str, row: int, column: int, yaw_deg: float, dx: float = 0.0, dy: float = 0.0) -> PoseStamped:
         index = (row - 1) * self._SLOTS_PER_ROW + (column - 1)
         try:
             location = parking_vehicle_locations_Town04[index]
@@ -89,8 +93,9 @@ class GoalPublisher:
         pose = PoseStamped()
         pose.header.frame_id = frame_id
         pose.header.stamp = rospy.Time.now()
-        pose.pose.position.x = float(location.x)
-        pose.pose.position.y = float(location.y)
+        # Apply coordinate conversion and row-specific offsets
+        pose.pose.position.x = float(location.x) + dx
+        pose.pose.position.y = float(-location.y) + dy
         pose.pose.position.z = float(location.z)
 
         yaw_rad = math.radians(yaw_deg)
