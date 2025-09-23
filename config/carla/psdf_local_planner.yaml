@@ -7,7 +7,7 @@ dt: 0.1
 ref_ds: 0.2
 
 # Costs
-Q: [10.0, 10.0, 2.0]
+Q: [30.0, 30.0, 10.0] # [v, ω, v̇]
 R: [1.0, 5.0]
 terminal_weight: 0.1
 
@@ -16,8 +16,9 @@ d_safe: 0.01
 vmax: 1.0
 vmin: -1.0
 wheel_base: 3.005
-steering_min: -1.0
-steering_max: 1.0
+steering_min: -1.4
+steering_max: 1.4
+
 
 # Obstacle/PSDF parameters
 max_clusters: 20
@@ -26,7 +27,7 @@ obstacle_topic: "/detected_edges"
 line_segment_topic: "/line_segments"
 
 # Frames
-robot_base: "ego_vehicle"
+robot_base: "ego_vehicle_base"
 global_frame: "map"
 
 # Scale for slowdown

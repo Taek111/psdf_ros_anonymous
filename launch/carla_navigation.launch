@@ -43,7 +43,7 @@
             <param name="base_global_planner" value="hybrid_a_star/HybridAstarGlobalPlanner" />
 
             <!-- Provide plugin-specific footprint YAML path for robustness -->
-            <param name="hybrid_a_star/HybridAstarGlobalPlanner/robot_footprint_yaml" value="$(arg config_dir)/robot_footprint.yaml" />
+            <param name="HybridAstarGlobalPlanner/robot_footprint_yaml" value="$(arg config_dir)/robot_footprint.yaml" />
         
             <!-- Basic move_base parameters -->
             <rosparam file="$(arg config_dir)/move_base_params.yaml" command="load" />

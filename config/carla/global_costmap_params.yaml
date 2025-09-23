@@ -5,7 +5,7 @@
 # so keys here configure ~global_costmap/* directly without wiping plugin definitions.
 global_costmap: 
   global_frame: map
-  robot_base_frame: ego_vehicle
+  robot_base_frame: ego_vehicle_base
   update_frequency: 1.0
   publish_frequency: 0.5
   rolling_window: true

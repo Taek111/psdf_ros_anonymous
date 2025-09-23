@@ -70,6 +70,10 @@
         </rosparam>
     </node>
 
+    <!-- 5) Static TF: ego_vehicle (vehicle center) -> ego_vehicle_base (rear axle center) -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="ego_vehicle_to_base" args="-1.5025 0 0 0 0 0 ego_vehicle ego_vehicle_base"/>
+
+
     <!-- 6) Optional: CARLA API-based TF (map -> ego_vehicle). Disable if ros_bridge TF is used -->
     <group if="$(arg use_carla_localization)">
         <node pkg="psdf_ros" type="carla_localization.py" name="carla_localization" output="screen">

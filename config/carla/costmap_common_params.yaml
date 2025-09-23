@@ -1,7 +1,7 @@
 # Common costmap parameters for both global and local costmaps
 # Used by move_base for navigation planning
 global_frame: map
-robot_base_frame: ego_vehicle
+robot_base_frame: ego_vehicle_base
 # Obstacle layer
 footprint: [[-1.5, -1.0815], [3.8985, -1.0815], [3.8985, 1.0815], [-1.5, 1.0815]]
 footprint_padding: 0.2 
