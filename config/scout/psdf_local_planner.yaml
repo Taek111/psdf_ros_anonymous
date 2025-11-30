@@ -5,13 +5,13 @@ dt: 0.1
 ref_ds: 0.1
 
 # Costs
-Q: [30.0, 30.0, 1.0]
+Q: [10.0, 10.0, 1.0]
 R: [1.0, 1.0]
-terminal_weight: 1.0
+terminal_weight: 0.2
 
 # Safety and limits
-d_safe: 0.01
-vmax: 1.0
+d_safe: 0.001
+vmax: 0.8
 vmin: -0.5
 omegamax: 2.0 
 omegamin: -2.0
