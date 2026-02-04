@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `src/psdf_local_planner.cpp` and `include/psdf_ros/` implement the nav_core local planner plugin exposed to `move_base`.
-- `scripts/` houses Python nodes such as `psdf_ros_node.py`, MPC utilities, and obstacle-processing helpers; keep reusable logic modular.
+- `src/psdf_ros_node.py` exposes the `/psdf_mpc` service node, while `scripts/` houses other Python nodes, MPC utilities, and obstacle-processing helpers; keep reusable logic modular.
 - `config/` contains YAML parameters for planners, robot footprints, and MPC tuning, while `launch/` supplies bring-up scenarios (`test_psdf.launch`, CARLA integrations, etc.).
 - Interfaces live in `msg/` and `srv/`; rebuild after editing them to refresh generated code.
 - `test/` stores rostest launch files and pytest-style service checks; `references/` holds research prototypes that should guide—but not duplicate—runtime code.

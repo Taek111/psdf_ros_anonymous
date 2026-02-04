@@ -40,7 +40,7 @@ void PSDFLocalPlanner::initialize(std::string name, tf2_ros::Buffer* tf, costmap
   odom_sub_ = nh_.subscribe<nav_msgs::Odometry>(odom_topic_, 10, &PSDFLocalPlanner::odomCallback, this);
   
   // Wait for service (use WallDuration to avoid sim-time stalls)
-  if (!ros::service::waitForService(service_name_, 0.2)) {
+  if (!ros::service::waitForService(service_name_, service_timeout_)) {
     ROS_WARN_STREAM("PSDFLocalPlanner: service " << service_name_ << " not available yet.");
   } else {
     ROS_INFO_STREAM("PSDFLocalPlanner: connected to service " << service_name_);
@@ -81,7 +81,7 @@ bool PSDFLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
   // Ensure service is available; re-check using wall time to handle late startup
   if (!service_availiable_) {
     // Try to (re)discover service without blocking move_base
-    if (!ros::service::waitForService(service_name_, 0.05)) {
+    if (!ros::service::waitForService(service_name_, service_timeout_)) {
       ROS_WARN_THROTTLE(1.0, "PSDFLocalPlanner: service %s unavailable; holding position", service_name_.c_str());
       // Degrade gracefully: publish zero command but report success to avoid controller aborts
       cmd_vel = geometry_msgs::Twist();
@@ -152,7 +152,7 @@ bool PSDFLocalPlanner::computeVelocityCommands(geometry_msgs::Twist& cmd_vel) {
 
   ref_path.poses = transformed_plan;
   srv.request.reference_path = ref_path;
-  ROS_INFO_THROTTLE(1.0, "PSDFLocalPlanner: reference_path: %d", ref_path.poses.size());
+  ROS_INFO_THROTTLE(1.0, "PSDFLocalPlanner: reference_path: %zu", ref_path.poses.size());
   // Call PSDF-MPC service with timeout
   if (mpc_client_.call(srv) && srv.response.success) {
     cmd_vel = srv.response.cmd_vel.twist;

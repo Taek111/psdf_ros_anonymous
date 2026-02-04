@@ -18,7 +18,7 @@ HybridAstarGlobalPlanner:
   grid_size_phi: 72
 
   # Vehicle and motion primitives
-  wheel_base: 3.005
+  wheelbase: 3.005
   veh_length: 4.5
   veh_width: 1.75
   steering_angle: 35.0

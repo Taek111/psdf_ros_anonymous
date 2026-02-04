@@ -30,7 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -181,12 +181,38 @@ install(FILES psdf_local_planner_plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-## Install Python node script
+## Install Python node scripts
 catkin_install_python(PROGRAMS
-  scripts/psdf_ros_node.py
-  scripts/carla_localization.py
-  scripts/twist_to_ackermann.py
+  src/psdf_ros_node.py
+  scripts/scout/line_segments_to_obstacles.py
+  scripts/carla/carla_obstacle_detector.py
+  scripts/carla/carla_localization.py
+  scripts/carla/carla_map_generation.py
+  scripts/carla/carla_cruise_controller.py
+  scripts/carla/twist_to_ackermann.py
+  scripts/carla/parking_position.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+## Install launch files
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
+## Install configuration files needed by launchers
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  FILES_MATCHING PATTERN "*.yaml" PATTERN "*.json" PATTERN "*.mprim" PATTERN "*.lua"
+)
+
+install(DIRECTORY assets/maps/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/assets/maps
+  FILES_MATCHING PATTERN "*.yaml" PATTERN "*.pgm" PATTERN "*.png" PATTERN "*.txt"
+)
+
+install(DIRECTORY assets/worlds/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/assets/worlds
+  FILES_MATCHING PATTERN "*.world" PATTERN "*.stl"
 )
 
 #############

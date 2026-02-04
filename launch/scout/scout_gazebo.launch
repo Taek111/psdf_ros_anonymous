@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="robot_namespace" default=""/>
+    <!-- <arg name="world_name" default="$(find psdf_ros)/assets/worlds/2d_maze_scaled.world"/> -->
+    <arg name="world_name" default="$(find psdf_ros)/assets/worlds/corridor_world.world"/>
+    <!-- <arg name="world_name" default="$(find scout_gazebo_sim)/worlds/clearpath_playpen.world"/> -->
+    <!-- <arg name="world_name" default="$(find scout_gazebo_sim)worlds/weston_robot_empty.world"/> -->
+    <arg name="use_rviz" default="true" />
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="false"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
+
+    <include file="$(find scout_gazebo_sim)/launch/spawn_scout_mini.launch" output="log">
+      <!-- initial pose -->
+      <arg name="x" default="0.0"/>
+      <arg name="y" default="0.0"/>
+      <arg name="z" default="0.01"/>
+      <arg name="yaw" default="0.0"/>
+      <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+    </include>
+    
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find scout_description)/rviz/model_display.rviz" /> -->
+   
+    <!-- run pointcloud_to_laserscan node -->
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+        <remap from="cloud_in" to="velodyne_points"/>
+        <remap from="scan" to="scan"/>
+        <rosparam>
+            target_frame: base_link # Leave disabled to output scan in pointcloud frame
+            transform_tolerance: 0.01
+            min_height: 0.0
+            max_height: 1.0
+
+            angle_min: -3.1416 # -M_PI/2
+            angle_max: 3.1416 # M_PI/2
+            angle_increment: 0.0087 # M_PI/360.0
+            scan_time: 0.3333
+            range_min: 0.01
+            range_max: 10.0
+            use_inf: true
+            inf_epsilon: 1.0
+
+            # Concurrency level, affects number of pointclouds queued for processing and number of threads used
+            # 0 : Detect number of cores
+            # 1 : Single threaded
+            # 2->inf : Parallelism level
+            concurrency_level: 1
+        </rosparam>
+    </node>
+
+    <!-- RViz with predefined config -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" output="screen"
+            args="-d $(find psdf_ros)/rviz/psdf_simulation.rviz" /> -->
+
+    <!-- Static transform: map -> odom -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
+            args="0 0 0 0 0 0 1 map odom" /> -->
+
+    <!-- Line extractor -->
+    <node name="line_extractor" pkg="laser_line_extraction" type="line_extraction_node">
+        <param name="~frequency" value="30.0" />
+        <param name="~frame_id" value="base_link"/>
+        <param name="~scan_topic" value="scan" />
+        <param name="~publish_markers" value="true"/>
+        <param name="~bearing_std_dev" value="1e-5" />
+        <param name="~range_std_dev" value="0.012" />
+        <param name="~least_sq_angle_thresh" value="0.0001" />
+        <param name="~least_sq_radius_thresh" value="0.0001" />
+        <param name="~max_line_gap" value="0.5" />
+        <param name="~min_line_length" value="0.2" />
+        <param name="~min_range" value="0.35" />
+        <param name="~max_range" value="250.0" />
+        <param name="~min_split_dist" value="0.04" />
+        <param name="~outlier_dist" value="0.06" />
+        <param name="~min_line_points" value="10" />
+    </node>
+
+     <!-- 6. Visualization -->
+    <group if="$(arg use_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find psdf_ros)/rviz/psdf_navigation.rviz" 
+              output="screen" />
+    </group>
+</launch>

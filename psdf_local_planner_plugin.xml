@@ -5,7 +5,7 @@
          type="psdf_ros::PSDFLocalPlanner"
          base_class_type="nav_core::BaseLocalPlanner">
     <description>
-      PSDF-MPC based local planner (stub).
+      PSDF-MPC based nav_core local planner that bridges move_base goals to the /psdf_mpc service, handling odom feedback and tolerance checking.
     </description>
   </class>
 </library>

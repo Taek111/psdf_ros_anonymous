@@ -17,7 +17,7 @@ terminal_weight: 0.2
 d_safe: 0.001
 vmax: 0.8
 vmin: -0.5
-wheel_base: 3.005
+wheelbase: 3.005
 steering_min: -0.6
 steering_max: 0.6
 

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Scout Mini PSDF-MPC Integration Test Launch File -->
+    <!-- This launch file combines Scout Mini Gazebo simulation with PSDF-MPC local planner -->
+    
+    <!-- Arguments -->
+    <arg name="robot_namespace" default="ego_vehicle"/>
+    <arg name="config_dir" default="$(find psdf_ros)/config/carla" />
+    <arg name="use_rviz" default="true" />
+    <arg name="use_move_base" default="true" />
+    
+    <!-- Optional: CARLA API-based localization (disabled by default) -->
+    <arg name='host' default='localhost'/>
+    <arg name='port' default='2000'/>
+    <arg name='use_carla_localization' default='false'/>
+  
+    <!-- Use CARLA /clock when running navigation alone -->
+    <param name="/use_sim_time" value="true"/>
+  
+    <!-- 1. PSDF-ROS Service Node -->
+    <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
+      <!-- Load planner params into node private namespace (~) -->
+      <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
+      <!-- robot_footprint path is used by node to read actual YAML -->
+      <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml" />
+    </node>
+
+    <!-- 2. Load PSDF-MPC parameters for psdf_ros_node (private namespace) -->
+    <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
+    
+    <!-- 3. Navigation stack with PSDF local planner -->
+    <group if="$(arg use_move_base)">
+        <!-- Map server (if using a static map)-->
+        <node name="map_server" pkg="map_server" type="map_server" 
+              args="$(find psdf_ros)/assets/maps/carla_parking_lot.yaml" output="log" />
+        
+        <!-- Move base with PSDF local planner -->
+        <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+            <!-- Use PSDF local planner -->
+            <param name="base_local_planner" value="psdf_local_planner/PSDFLocalPlanner" />
+
+            <!-- Explicitly set global planner to Hybrid A* plugin -->
+            <param name="base_global_planner" value="hybrid_a_star/HybridAstarGlobalPlanner" />
+
+            <!-- Provide plugin-specific footprint YAML path for robustness -->
+            <param name="HybridAstarGlobalPlanner/robot_footprint_yaml" value="$(arg config_dir)/robot_footprint.yaml" />
+        
+            <!-- Basic move_base parameters -->
+            <rosparam file="$(arg config_dir)/move_base_params.yaml" command="load" />
+            
+            <!-- Costmap parameters -->
+            <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="global_costmap" />
+            <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="local_costmap" />
+            <rosparam file="$(arg config_dir)/local_costmap_params.yaml" command="load"/>
+            <rosparam file="$(arg config_dir)/global_costmap_params.yaml" command="load"/>
+            <rosparam file="$(arg config_dir)/robot_footprint.yaml" command="load" />
+            <remap from="cmd_vel" to="/carla/ego_vehicle/twist" />
+            <remap from="scan" to="/scan" />
+        </node>
+    </group>
+
+    <!-- 4. Obstacle detector -->
+    <node pkg="psdf_ros" type="carla_obstacle_detector.py" name="carla_obstacle_detector" output="screen">
+        <param name="frame_id" value="map" />
+        <param name="edge_clusters_topic" value="/obstacles" />
+        <param name="marker_topic" value="/carla/edge_clusters_markers" />
+        <param name="marker_line_width" value="0.1" />
+        <param name="host" value="127.0.0.1" />
+        <param name="port" value="2000" />
+    </node>
+
+    <!-- 6. Visualization -->
+    <group if="$(arg use_rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" 
+              args="-d $(find psdf_ros)/rviz/carla_simulation.rviz" 
+              output="screen" />
+    </group>
+
+    <!-- 7. CARLA twist to control bridge -->
+    <include file="$(find psdf_ros)/launch/carla/carla_twist_to_control.launch">
+        <arg name="role_name" value="ego_vehicle" />
+    </include>
+   
+</launch>
