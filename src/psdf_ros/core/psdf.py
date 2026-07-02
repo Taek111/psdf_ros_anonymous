@@ -20,8 +20,6 @@
 #       amin(dim=2) → per-cluster SDF
 #       amin(dim=1) → min over all clusters
 #
-# 2025 - Taekwon Ga
-
 
 import torch
 import torch.nn.functional as F

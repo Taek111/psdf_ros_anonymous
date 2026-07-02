@@ -20,7 +20,7 @@
     <!-- 1. PSDF-ROS Service Node -->
     <node name="psdf_ros_node" pkg="psdf_ros" type="psdf_ros_node.py" output="screen">
       <!-- Load planner params into node private namespace (~) -->
-      <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" />
+      <rosparam file="$(arg config_dir)/psdf_local_planner.yaml" command="load" subst_value="true" />
       <!-- robot_footprint path is used by node to read actual YAML -->
       <param name="footprint" value="$(arg config_dir)/robot_footprint.yaml" />
     </node>
@@ -46,7 +46,7 @@
             <param name="HybridAstarGlobalPlanner/robot_footprint_yaml" value="$(arg config_dir)/robot_footprint.yaml" />
         
             <!-- Basic move_base parameters -->
-            <rosparam file="$(arg config_dir)/move_base_params.yaml" command="load" />
+            <rosparam file="$(arg config_dir)/move_base_params.yaml" command="load" subst_value="true" />
             
             <!-- Costmap parameters -->
             <rosparam file="$(arg config_dir)/costmap_common_params.yaml" command="load" ns="global_costmap" />

@@ -6,7 +6,7 @@ dt: 0.1
 # Target spacing [m] between reference points used by MPC
 ref_ds: 0.3
 
-optimizer_config_file: "/home/taekwon/catkin_ws/src/psdf_ros/config/carla/psdf_local_planner.yaml"
+optimizer_config_file: "$(find psdf_ros)/config/carla/psdf_local_planner.yaml"
 
 # Costs
 Q: [5.0, 5.0, 1.0] # [v, ω, v̇]
