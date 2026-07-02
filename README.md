@@ -5,7 +5,7 @@ ROS1 implementation of PSDF-MPC: a GPU-accelerated polygonal signed distance fun
 ## Paper
 - Title: GPU-Accelerated Polygonal Signed Distance Function for Real-Time Collision Avoidance
 
-## Method (Short)
+## Method
 PSDF computes geometry-exact signed distances between a convex polygonal robot footprint and obstacle boundary edges, enabling differentiable, high-rate collision constraints. The core computation is a branch-free tensorized pipeline for batched GPU evaluation and automatic differentiation. These constraints are locally linearized inside an SQP-RTI MPC loop with a CPU/GPU split: GPU for PSDF values/gradients and CPU for sparse QP solves independent of obstacle feature count.
 
 ## Experiments
